@@ -1,0 +1,14 @@
+{
+  "Accounts": {
+    "Security Preferences": "सुरक्षा प्राथमिकताएँ",
+    "Theme Preferences": "थीम प्राथमिकताएँ",
+    "Choose Language": "भाषा चुनें",
+    "Logout": "लॉग आउट"
+  },
+  "Calender": {
+    "Search Date": "तारीख खोजें"
+  },
+  "settings": {
+    "language": "भाषा"
+  }
+}

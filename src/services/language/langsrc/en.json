@@ -1,0 +1,48 @@
+
+{
+    "Accounts": {
+      "Security Preferences": "Security Preferences",
+      "Theme Preferences":"Theme Preferences",
+      "Choose Language":"Choose Language",
+      "Logout":"Logout"
+    },
+    "Calender": {
+      "Search Date": "Search Date"
+    },
+    "settings": {
+      "language": "English",
+      "options":{
+        "hello":"hello"
+      }
+    },
+    "mpin":{
+      "Enter Mpin" : "Enter Your Mpin",
+      "Forgot Mpin": "Forgot Mpin ?",
+      "TryFingerPrint":"Try FingerPrint"
+    },
+    "Personal Profile":{
+      "Add Member":{
+        "Add new member":"Add new member",
+        "Manage Family's Health":"Manage Family's Health",
+        "Add a Profile Photo":"Add a Profile Photo",
+        "First Name *":"First Name *",
+        "Last Name *":"Last Name *",
+        "Date of Birth *":"Date of Birth *",
+        "Gender *":"Gender *",
+        "GenderTypes":{
+          "Male":"Male",
+          "Female":"Female",
+          "Trans Male":"Trans Male",
+          "Trans Female":"Trans Female"
+        },
+        "Blood Group":"Blood Group",
+        "Relation with":"Relation with {{username}} *",
+        "Profession":"Profession",
+        "Nationality":"Nationality",
+        "Ethnicity":"Ethnicity",
+        "Religion":"Religion",
+        "Create":"Create"
+      }
+    }
+  }
+  

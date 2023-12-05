@@ -1,0 +1,15 @@
+
+{
+  "Accounts": {
+    "Security Preferences": "భద్రతా ప్రాధికారాలు",
+    "Theme Preferences":"థీమ్ ప్రాధికారాలు",
+    "Choose Language":"భాషను ఎంచుకోండి",
+    "Logout":"లాగౌట్"
+  },
+  "Calender": {
+    "Search Date": "తేదిని వెతకండి"
+  },
+  "settings": {
+    "language": "భాష"
+  }
+}
