@@ -10,7 +10,7 @@ import { BMIconverter } from '../../utils/Conversions';
 import { setBMI, setBMIHeight, setBMIWeight } from '../../slices/PersonalProfileStates';
 import { addBasicDetails, addWeightandHeight } from '../../utils/PersonalServerRequests';
 
-const BMI = () => {
+const BMI = (refScreens) => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const CurrentProfile=useSelector(state=>state.PersonalReducers.general_states).current_user_profile;
   const BMIheight=useSelector(state=>state.PersonalReducers.general_states).height;
@@ -82,6 +82,7 @@ const BMI = () => {
                 unit:'cm'
               }
             },{});
+            refScreens.refScreens.current.close();
           }} style={{...styles.mediumButton,backgroundColor:Color.badge_bg}}>
             <Text style={{...styles.buttonText14, paddingHorizontal: 10}}>
               {Strings.buttonSave}

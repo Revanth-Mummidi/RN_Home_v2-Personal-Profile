@@ -32,46 +32,46 @@ const OTPBottomSheet = ({ isVisible, onSelect, onClose, resendOtp, isTimerRunnin
     if (Platform.OS === 'android') {
       // OTPVerify.getHash().then(hash => {
       // console.log(hash);
-      try {
-        startOtpListener(message => {
-          console.log(message);
-          if (message != null || message != 'Timeout Error.') {
-            // extract the otp using regex e.g. the below regex extracts 4 digit otp from message
-            if (message.search('Xc0wY/rGn/o') != -1) {
-              const otp = /(\d{6})/g.exec(message)[1];
-              console.log("KLKJJLKKLLKLKLK",otp);
-              let mOTP = otp.split('');
-              setInpu1(mOTP[0]);
-              setInpu2(mOTP[1]);
-              setInpu3(mOTP[2]);
-              setInpu4(mOTP[3]);
-              setInpu5(mOTP[4]);
-              setInpu6(mOTP[5]);
+      // try {
+      //   startOtpListener(message => {
+      //     console.log(message);
+      //     if (message != null || message != 'Timeout Error.') {
+      //       // extract the otp using regex e.g. the below regex extracts 4 digit otp from message
+      //       if (message.search('Xc0wY/rGn/o') != -1) {
+      //         const otp = /(\d{6})/g.exec(message)[1];
+      //         console.log("KLKJJLKKLLKLKLK",otp);
+      //         let mOTP = otp.split('');
+      //         setInpu1(mOTP[0]);
+      //         setInpu2(mOTP[1]);
+      //         setInpu3(mOTP[2]);
+      //         setInpu4(mOTP[3]);
+      //         setInpu5(mOTP[4]);
+      //         setInpu6(mOTP[5]);
 
-              setTimer(timer_value);
-              setIsTimerRunning(false);
+      //         setTimer(timer_value);
+      //         setIsTimerRunning(false);
             
             
   
-              onClick(otp);
-            } else {
-              console.log('false');
-            }
-          } else {
-            console.log('sdsds');
-          }
-          //  setAutoOtp(otp);
-        });
-      } catch (e) {
-        console.log(e);
-      }
+      //         onClick(otp);
+      //       } else {
+      //         console.log('false');
+      //       }
+      //     } else {
+      //       console.log('sdsds');
+      //     }
+      //     //  setAutoOtp(otp);
+      //   });
+      // } catch (e) {
+      //   console.log(e);
+      // }
 
       // });
     }
-    return () => {
-      // Clean up OTPVerify listener
-      removeListener();
-    };
+    // return () => {
+    //   // Clean up OTPVerify listener
+    //   removeListener();
+    // };
   }, [isVisible]);
   useEffect(() => {
     // Update the timer every second

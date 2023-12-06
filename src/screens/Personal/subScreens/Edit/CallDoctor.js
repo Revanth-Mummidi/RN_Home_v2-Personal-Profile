@@ -40,17 +40,17 @@ const CallDoctor = () => {
   const [temparr,settemparr]=useState([0,0,0]);
   const refCC = useRef(null);
   const [count,setCount]=useState(0);
-  refAddFamily = React.useRef(null);
-  useEffect(()=>{
-   setCount(1);
+  const refAddFamily = React.useRef(null);
+  // useEffect(()=>{
+  //  setCount(1);
 
-    if(mod)
-    refAddFamily.current.close();
-    else if(count!=0)
-    {
-      refAddFamily.current.open();
-    }
-  },[mod]);
+  //   if(mod)
+  //   refAddFamily.current.close();
+  //   else if(count!=0)
+  //   {
+  //     refAddFamily.current.open();
+  //   }
+  // },[mod]);
   useEffect(()=>{
     let arr=[0,0,0],brr=[0,0,0];
     if(userName=='')
@@ -254,6 +254,7 @@ const CallDoctor = () => {
       />
         <ContactsList
             mod={mod}
+            refer={refAddFamily}
             setMod={setMod}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}

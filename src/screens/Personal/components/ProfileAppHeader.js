@@ -10,6 +10,7 @@ import {
   } from 'react-native';
   import React, {useState, useEffect} from 'react';
   import LinearGradient from 'react-native-linear-gradient';
+  import { fetchAddress } from '../utils/PersonalServerRequests';
   import IconFontAwesome from 'react-native-vector-icons/FontAwesome';
 //   import {Colors} from '../../../themes';
 //   import AppStatusBar from './AppStatusBar';
@@ -20,7 +21,8 @@ import {
 import { getColor } from '../../../themes/GetColor';
 import { responsiveFontSize , responsiveHeight, responsiveWidth } from '../../../themes/ResponsiveDimensions';
 import { AppStatusBar } from '../../_components';
-import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus } from '../slices/PersonalProfileStates';
+import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus, setPrimaryEmails, setPrimaryMailIndex } from '../slices/PersonalProfileStates';
+import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
   
   const BAR_HEIGHT = Platform.OS === 'ios' ? 35 : StatusBar.currentHeight;
   
@@ -48,12 +50,45 @@ import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus } f
     const [selectedItem,setSelectedItem]=useState(dependentUsers[0]);
     const dispatch=useDispatch();
     const [current, setCurrent] = useState(list[user]);
+    const getAddressandProfile=async()=>{
+      try {
+        const response=await fetchAddress(selectedItem.dependent_access_token)
+        const ModidifedAddressArray = response.data.map((addressObj, index) => {
+          const newAddressObj = {
+            id: addressObj.address_id,
+            nickname: addressObj.custom_title || '',
+            type: addressObj.address_type || '',
+            address: `${
+              addressObj.address !== '' ? addressObj.address : ''
+            }${addressObj.landmark !== '' ? ',' + addressObj.landmark : ''}${
+              addressObj.city !== '' ? ',' + addressObj.city : ''
+            }${addressObj.district !== '' ? ',' + addressObj.district : ''}${
+              addressObj.state !== '' ? ',' + addressObj.state : ''
+            }${addressObj.country !== '' ? ',' + addressObj.country : ''}${
+              addressObj.pin_code !== '' ? '-' + addressObj.pin_code : ''
+            }`,
+            verify: true,
+            images: [],
+          };
+          return newAddressObj;
+        });
+        dispatch(set_AddressSlice_AddressList(ModidifedAddressArray))
+        // dispatch(set_AddressSlice_AddressList(ModidifedAddressArray))
+
+      } catch (error) {
+        console.log(error)
+      }
+    }
     useEffect(() => {
       // console.log("IN APP HEADER",dependentUsers);
       dispatch(setCurrentUserProfile(selectedItem));
        dispatch(setBMIHeight(selectedItem==undefined?100:parseInt(selectedItem.height)));
        dispatch(setBMIWeight(selectedItem==undefined?30:parseInt(selectedItem.weight)));
-       dispatch(setMaritalStatus(selectedItem==undefined?'':parseInt(selectedItem.marital_status)));
+       dispatch(setMaritalStatus(selectedItem==undefined?'':(selectedItem.marital_status)));
+       getAddressandProfile();
+       if(selectedItem!=undefined && selectedItem.email_id!=undefined && [...selectedItem.alternate_email_id].length!=0){
+      dispatch(setPrimaryEmails([selectedItem.email_id,[...selectedItem.alternate_email_id]]))
+      dispatch(setPrimaryMailIndex(0));}
        console.log("SELECTED ITEM=",selectedItem);
     }, [selectedItem]);
   
@@ -71,11 +106,11 @@ import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus } f
           {profileSlider == false && <View style={styles.container}>
             <View style={{flexDirection: 'row', alignItems: 'center',height:responsiveHeight(5)}}>
               <Pressable activeOpacity={1} style={{}} onPress={onPressImage}>
-                {/* <Image
-                  source={{uri: current?.userImage}}
+                {selectedItem.Profile_Picture!=null?(<Image
+                  source={{uri: selectedItem.Profile_Picture}}
                   style={styles.userImage}
-                /> */}
-                <View style={{backgroundColor:'grey',...styles.userImage}}/>
+                />):(
+                <View style={{backgroundColor:'grey',...styles.userImage}}/>)}
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -137,18 +172,17 @@ import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus } f
                           setSelectedItem(profile);
                           setProfileSlider(!profileSlider);
                         }}>
-                        {/* <Image
-                          source={{uri: profile.userImage}}
+                        
+                        {profile.Profile_Picture!=null?(<Image
+                          source={{uri: profile.Profile_Picture}}
                           style={{
-                            height: 30,
-                            width: 30,
+                            height: responsiveHeight(3),
+                            width: responsiveHeight(3),
                             borderRadius: 40,
                           }}
-                        /> */}
+                        />):(
                         <View style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey'}}>
-  
-                        </View>
-  
+                        </View>)}
                         <Text
                           numberOfLines={1}
                           style={{fontSize: responsiveFontSize(1.2), color: Color.headersubtitles,marginVertical:3}}>

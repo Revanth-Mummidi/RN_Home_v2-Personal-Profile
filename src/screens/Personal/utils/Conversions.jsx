@@ -1,4 +1,4 @@
-
+//Changed
 export const BMIconverter=(weight,height)=>{
     const bmi = weight / Math.pow(height / 100, 2);
     

@@ -8,7 +8,7 @@ import { getColor } from '../../../../themes/GetColor';
 import { setMaritalStatus } from '../../slices/PersonalProfileStates';
 import { addBasicDetails } from '../../utils/PersonalServerRequests';
 
-const MaritalStatus = ({marital}) => {
+const MaritalStatus = (refScreens) => {
   const styles=getStyles();
   const Color=getColor(useSelector(state=>state.theme.theme));
   const dispatch=useDispatch();
@@ -101,6 +101,8 @@ const MaritalStatus = ({marital}) => {
           weight:"",
           height:""
         },{marital_status:selected});
+        // console.log("REFERENCE",refScreens.refScreens.current);
+        refScreens.refScreens.current?.close();
       }} style={styles.mediumButton}>
         <Text style={styles.buttonText14}>{Strings.buttonSave}</Text>
       </Pressable>

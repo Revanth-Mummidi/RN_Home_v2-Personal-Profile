@@ -35,16 +35,19 @@ import {
 import {useNavigation} from '@react-navigation/native';
 import {getLocation} from '../../../Home/utils/Permissions';
 import { createAddress } from '../../utils/PersonalServerRequests';
+//changed
 const Address = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
+  const AddressList=useSelector(state=>state.PersonalReducers.add_address).address_list;
   const [addAddress, setAddAddress] = useState(false);
   const CurrentProfile = useSelector(
     state => state.PersonalReducers.general_states,
   ).current_user_profile;
   const activeColor = Color.WHITE;
   const inActiveColor = Color.mildBlue;
-  const [addressData, setAddressData] = useState(CurrentProfile.address);
+
+  const [addressData, setAddressData] = useState(AddressList);
   const [isEdit, setEdit] = useState(false);
   const [latitude, setLatitude] = useState();
   const [longitude, setLongitude] = useState();
@@ -86,7 +89,7 @@ const Address = () => {
         setCountry(ob.Country);
         setDistrict(ob.District);
         setCity(ob.Name);
-        console.log(ob.State, ob.Country, ob.District, ob.Name, 'UDAY');
+        console.log(ob.State, ob.Country, ob.District, ob.Name,);
       } catch (err) {
         console.log(err);
       }
@@ -136,7 +139,8 @@ const Address = () => {
     useEffect(() => {
       dispatch(set_AddressSlice_type(addressCategory));
     }, [addressCategory]);
-    const handleSave = addressObj => {
+    const handleSave = async (addressObj) => {
+      try{
       // const addressObj=useSelector(state=>state.PersonalReducers.add_address);
       console.log('ADD=', addressObj);
       const tempObj = {
@@ -152,10 +156,12 @@ const Address = () => {
         }${addressObj.country != '' ? ',' + addressObj.country : ''}${
           addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
         }`,
+
         verify: true,
         images: [],
       };
-      const queryParams = {
+      const bodyData = {
+        address_list:[{
         address_image: '',
         address_id: '',
         address_type: addressObj.type,
@@ -169,12 +175,17 @@ const Address = () => {
         landmark:addressObj.landmark,
         longitude:addressObj.longitude ,
         latitude:addressObj.latitude,
-        is_primary: '0',
+        is_primary: '',
+        }]
       };
-      createAddress(CurrentProfile.dependent_access_token,queryParams);
+       const res=await createAddress(CurrentProfile.dependent_access_token,bodyData);
+       console.log(res.data[0])
       let arr = [...addressData, tempObj];
       setAddressData(arr);
       dispatch(set_AddressSlice_AddressList(arr));
+      }catch(err){
+      console.log("handleSaveErr",err)
+    }
     };
 
     const GetLocation = async () => {
@@ -667,6 +678,7 @@ const Address = () => {
       ) : (
         addressData.map((item, index) => (
           <AddressCard
+            key={index}
             item={item}
             index={index}
             setAddAddress={setAddAddress}

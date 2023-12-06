@@ -1,8 +1,9 @@
 import axios from 'axios';
 import { BASE_URL as URL } from '../../../axios/API';
-
+//changed
 export const Base_URLs = {
   // Profile
+
   AccessDependent_URL: URL + 'profile/profile/accessDependent',
   AddAllergy_URL: URL + 'profile/addAllergy',
   AddLifeStyle_URL: URL + 'profile/addLifeStyle',
@@ -10,6 +11,7 @@ export const Base_URLs = {
   AddAddress_URL:URL + 'profile/profile/addAddress',
   AddSymptoms_URL: URL + 'profile/addSymptoms',
   AddDependent_URL:URL+'profile/profile/addDependent',
+  AddEmergencyContact_URL:URL+'profile/profile/addEmergencyContact',
   CheckWelcomeData_URL: URL + 'profile/checkWelcomeData',
   ComparePin_URL: URL + 'profile/comparePin',
   CreateMember_URL: URL + 'profile/createMember',
@@ -28,6 +30,8 @@ export const Base_URLs = {
   EditSocioEco_URL: URL + 'profile/editSocioEco',
   EditVehicle_URL: URL + 'profile/editVehicle',
   FetchProfile_URL: URL + 'profile/profile/fetchProfile',
+  FetchAddress_URL: URL + 'profile/profile/fetchAddress',
+  FetchEmergencyContacts_URL: URL + 'profile/profile/fetchEmergencyContact',
   GetGroups_URL: URL + 'profile/getGroups',
   GetIds_URL: URL + 'profile/getIds',
   GetPinStatus_URL: URL + 'profile/getPinStatus',
@@ -38,6 +42,7 @@ export const Base_URLs = {
   MemberApproval_URL: URL + 'profile/memberApproval',
   SaveDocument_URL: URL + 'profile/saveDocument',
   SaveWelcomeData_URL: URL + 'profile/saveWelcomeData',
+  PersonalQRCode_URL:URL + 'util/bucket/viewFile',
 };
 
 const HomeAPI = axios.create({

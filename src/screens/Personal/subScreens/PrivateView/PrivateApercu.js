@@ -38,6 +38,7 @@ import UserVerification from '../Edit/UserVerification';
 import { useNavigation } from '@react-navigation/native';
 import { ClearAddMembeData, set_AddMember_BloodGroup, set_AddMember_Complete, set_AddMember_DateOfBirth, set_AddMember_FirstName, set_AddMember_Gender, set_AddMember_IsEdit, set_AddMember_LastName } from '../../slices/AddMemberSlice';
 import { parseDateString } from '../../utils/Conversions';
+import { responsiveFontSize, responsiveHeight, useResponsiveHeight } from '../../../../themes/ResponsiveDimensions';
 // import { Modal } from 'react-native-paper';
 
 const initialState = {
@@ -50,23 +51,26 @@ const initialState = {
   colorSeven: { value: '', name: '' },
   colorEight: { value: '', name: '' },
   rawResult: '',
-};
+};  
+
+
 
 const PrivateApercu = ({ imageURL }) => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const navigation = useNavigation();
   const [colors, setColors] = useState(initialState);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const styles = getStyles();
   var color1 = colors.colorSeven.value;
   var color2 = colors.colorSix.value;
   var color3 = colors.colorEight.value;
-  const { profileDetails, slider, tabs } = getArr();
+  const refScreens = React.useRef(null);
+  const  refTabScreens = React.useRef(null);
+  const { profileDetails, slider, tabs } = getArr(refScreens);
   const [image, setImage] = useState(
     (imageURL = require('../../assets/images/Svante_Paabo_nobelPrizeMedicine.jpeg')),
   );
-  refScreens = React.useRef(null);
-  refTabScreens = React.useRef(null);
+
   const refProfileImage = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [tabselectedIndex, setTabSelectedIndex] = useState(0);
@@ -74,55 +78,57 @@ const PrivateApercu = ({ imageURL }) => {
   const [profileEditClicked, setProfileEditClicked] = useState(false);
   const dispatch = useDispatch();
   const CurrentProfile = useSelector(state => state.PersonalReducers.general_states).current_user_profile;
-  useEffect(() => {
-    const fetchColors = async () => {
-      const result = await ImageColors.getColors(image, {
-        fallback: '#000000',
-        quality: 'low',
-        pixelSpacing: 5,
-        cache: true,
-        headers: {
-          authorization: 'Basic 123',
-        },
-      });
 
-      switch (result.platform) {
-        case 'android':
-        case 'web':
-          setColors({
-            // colorOne: {value: result.lightVibrant, name: 'lightVibrant'},
-            // colorTwo: {value: result.dominant, name: 'dominant'},
-            // colorThree: {value: result.vibrant, name: 'vibrant'},
-            // colorFour: {value: result.darkVibrant, name: 'darkVibrant'},
-            colorOne: { value: result.dominant, name: 'dominant' },
-            colorTwo: { value: result.average, name: 'average' },
-            colorThree: { value: result.vibrant, name: 'vibrant' },
-            colorFour: { value: result.darkVibrant, name: 'darkVibrant' },
-            colorFive: { value: result.lightVibrant, name: 'lightVibrant' },
-            colorSix: { value: result.darkMuted, name: 'darkMuted' },
-            colorSeven: { value: result.lightMuted, name: 'lightMuted' },
-            colorEight: { value: result.muted, name: 'muted' },
-            rawResult: JSON.stringify(result),
-          });
-          break;
-        case 'ios':
-          setColors({
-            colorOne: { value: result.background, name: 'background' },
-            colorTwo: { value: result.detail, name: 'detail' },
-            colorThree: { value: result.primary, name: 'primary' },
-            colorFour: { value: result.secondary, name: 'secondary' },
-            rawResult: JSON.stringify(result),
-          });
-          break;
-        default:
-          throw new Error('Unexpected platform');
-      }
 
-      setLoading(false);
-    };
+  // useEffect(() => {
+  //   const fetchColors = async () => {
+  //     const result = await ImageColors.getColors(image, {
+  //       fallback: '#000000',
+  //       quality: 'low',
+  //       pixelSpacing: 5,
+  //       cache: true,
+  //       headers: {
+  //         authorization: 'Basic 123',
+  //       },
+  //     });
 
-    fetchColors();
-  }, []);
+  //     switch (result.platform) {
+  //       case 'android':
+  //       case 'web':
+  //         setColors({
+  //           // colorOne: {value: result.lightVibrant, name: 'lightVibrant'},
+  //           // colorTwo: {value: result.dominant, name: 'dominant'},
+  //           // colorThree: {value: result.vibrant, name: 'vibrant'},
+  //           // colorFour: {value: result.darkVibrant, name: 'darkVibrant'},
+  //           colorOne: { value: result.dominant, name: 'dominant' },
+  //           colorTwo: { value: result.average, name: 'average' },
+  //           colorThree: { value: result.vibrant, name: 'vibrant' },
+  //           colorFour: { value: result.darkVibrant, name: 'darkVibrant' },
+  //           colorFive: { value: result.lightVibrant, name: 'lightVibrant' },
+  //           colorSix: { value: result.darkMuted, name: 'darkMuted' },
+  //           colorSeven: { value: result.lightMuted, name: 'lightMuted' },
+  //           colorEight: { value: result.muted, name: 'muted' },
+  //           rawResult: JSON.stringify(result),
+  //         });
+  //         break;
+  //       case 'ios':
+  //         setColors({
+  //           colorOne: { value: result.background, name: 'background' },
+  //           colorTwo: { value: result.detail, name: 'detail' },
+  //           colorThree: { value: result.primary, name: 'primary' },
+  //           colorFour: { value: result.secondary, name: 'secondary' },
+  //           rawResult: JSON.stringify(result),
+  //         });
+  //         break;
+  //       default:
+  //         throw new Error('Unexpected platform');
+  //     }
+
+  //     setLoading(false);
+  //   };
+
+  //   fetchColors();
+  // }, []);
 
   if (loading) {
     return (
@@ -281,7 +287,8 @@ const PrivateApercu = ({ imageURL }) => {
       }}>
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ ...styles.profileContainer, alignSelf: 'center' }}>
-            <Image source={image} style={styles.Image200} resizeMode={'cover'} />
+
+            {CurrentProfile.Profile_Picture!=null?(<Image source={{uri:CurrentProfile.Profile_Picture}} style={styles.Image200} resizeMode={'cover'} />):(<View style={{...styles.Image200,backgroundColor:"grey",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:responsiveFontSize(10)}}>M</Text></View>)}
           </View>
         </View>
       </Modal>
@@ -291,7 +298,7 @@ const PrivateApercu = ({ imageURL }) => {
         content={fetchTabScreens()}
         dragFromTop={true}
         //height={300}
-        draggableIcon={{ backgroundColor: Color.BLACK, width: 100 }}
+        draggableIcon={{ backgroundColor: 'white', width: 100 ,margin:20}}
       />
       <HandleBottomSheet
         containerStyle={{ backgroundColor: Color.WHITE }}
@@ -344,13 +351,17 @@ const PrivateApercu = ({ imageURL }) => {
                     setProfileImage(true);
                   }}
                   style={styles.profileContainer}>
-                  <Image
-                    source={image}
+                  {CurrentProfile.Profile_Picture!=null?(<Image
+                    // source={image}
+                    source={{uri:CurrentProfile.Profile_Picture}}
                     style={styles.profileImageBig}
                     resizeMode={'cover'}
-                  />
+                  />):(<View style={{...styles.profileImageBig,backgroundColor:'grey'}}>
+
+                  </View>)}
                   <Image
                     source={require('../../assets/icons/verify.png')}
+                 
                     style={{
                       ...styles.badgeVerify,
                       tintColor: item?.verified
@@ -525,7 +536,7 @@ const PrivateApercu = ({ imageURL }) => {
 
 export default PrivateApercu;
 
-const getArr = () => {
+const getArr = (refScreens) => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const profileDetails = [
     {
@@ -606,7 +617,7 @@ const getArr = () => {
       title: '',
       subTitle: 'BMI',
       image: require('../../assets/icons/BMI1.png'),
-      screen: <BMI />,
+      screen: <BMI refScreens={refScreens} />,
       isVerfied: true,
     },
     {
@@ -627,7 +638,7 @@ const getArr = () => {
       ),
       image: require('../../assets/icons/heart.png'),
       refScreens: 'maritalRef',
-      screen: <MaritalStatus marital={'married'} />,
+      screen: <MaritalStatus refScreens={refScreens}/>,
       isVerfied: true,
     },
 
@@ -684,7 +695,7 @@ const getArr = () => {
       title: '',
       subTitle: 'ID',
       image: require('../../assets/icons/personalcard.png'),
-      screen: <UserVerification />,
+      screen: <UserVerification refScreens={refScreens}/>,
       isVerfied: true,
     },
 

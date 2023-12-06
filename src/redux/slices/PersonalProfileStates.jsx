@@ -1,6 +1,6 @@
 import {createSlice} from '@reduxjs/toolkit';
 import { BMIconverter } from '../../screens/Personal/utils/Conversions';
-
+//changed
 const initialState = {
   bmi:BMIconverter(30,100),
   weight:30,

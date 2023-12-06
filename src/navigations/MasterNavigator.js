@@ -4,7 +4,7 @@ import {Loader} from '../screens/_components';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {setApiKey, getApiKey} from '../utils/LocalStorage';
-import {FetchProfile, accessDependent, getMainProfile, getMembers} from '../screens/Personal/utils/PersonalServerRequests';
+import {getUserProfile, accessDependent, getMainProfile, getMembers} from '../screens/Personal/utils/PersonalServerRequests';
 import BottomTab from './bottomTab/BottomTab';
 import Recording from '../screens/Home/subScreens/home/Recording';
 import BarcodeScanner  from '../screens/Home/subScreens/home/Qrcode';
@@ -52,24 +52,30 @@ const MasterNavigator = () => {
   
   const dispatch=useDispatch();
   const addLang=async()=>{
+    try{
     const lang=await AsyncStorage.getItem("language");
     if(lang!=undefined){
     i18next.changeLanguage(lang);
     dispatch(setLang(lang));
     }
+  }catch(err){console.log("initial",err)}
   }
   const fetchTheme =async ()=>{
-
+    try{
     let obj=await AsyncStorage.getItem('theme');
     dispatch(setTheme(obj));
     console.log("Rendering first",obj);
+  }catch(err){console.log("themefetch",err)}
    }
   const handleChange=async({colorSchema})=>{
+    try{
     let obj=await AsyncStorage.getItem('theme');
     if(obj!=undefined)
     dispatch((setTheme(obj)));
+  }catch(err){console.log("handlechange",err)}
   }
   const initialCheck = async () => {
+    try{
     const token = await AsyncStorage.getItem('userToken');
    setIsAuthenticated(token);
    console.log(isAuthenticated)
@@ -92,30 +98,41 @@ const MasterNavigator = () => {
       setIntialRoute('AuthStack');
     }
     setLoading(false);
+  }catch(err){console.log("initial",err)}
   };
   const fetchAccessDependent=async(data)=>{
-    
+    try{
     let dat= await accessDependent(data);
     let mainProfile=await  getMainProfile();
     dispatch(setCurrentUserProfile(mainProfile));
     // console.log("MAIN PROFILE=",mainProfile);
+    // const profile=await getUserProfile(selectedItem.dependent_access_token,selectedItem.Profile_Picture)
+
     const combinedData=[mainProfile,...dat];
-    // console.log("COMBINED DATA",combinedData);
+    console.log("COMBINED DATA",combinedData);
+
     dispatch(setDependantUsers(combinedData));
+  }catch(err){console.log("Fetch ACCESS DEP",err)}
    }
+
    const fetchDependentUsers=async()=>{
-     let arr=await getMembers();
-     arr=arr.data.data;
-     let array1=arr.map((data,index)=>{
-       return data.child_eh_user_id;
-     });
+    try{
+      let arr=await getMembers();
+      arr=arr.data.data;
+      let array1=arr.map((data,index)=>{
+        return data.child_eh_user_id;
+      });
+     
+      dispatch(setDependantUsersEHID(arr));
+      let arr3=[];
+     arr3= array1.map((data,index)=>{
+         return {dependent_user_id:data};
+      });
+      fetchAccessDependent(arr3);
+    }catch(err){
+      console.log("fetchdep",err)
+    }
     
-     dispatch(setDependantUsersEHID(arr));
-     let arr3=[];
-    arr3= array1.map((data,index)=>{
-        return {dependent_user_id:data};
-     });
-     fetchAccessDependent(arr3);
      
    }
   React.useEffect(() => {

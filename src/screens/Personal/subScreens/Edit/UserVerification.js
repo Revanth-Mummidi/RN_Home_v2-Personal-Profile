@@ -32,8 +32,9 @@ import {
   setVerificationType,
 } from '../../slices/VerificationSlice';
 import { useNavigation } from '@react-navigation/native';
+//changed
 
-const UserVerification = () => {
+const UserVerification = (refScreens) => {
   const styles = getStyles();
   const {width} = Dimensions.get('screen');
   const Color = getColor(useSelector(state => state.theme.theme));
@@ -67,6 +68,7 @@ const UserVerification = () => {
     // Update the index when "Next" is clicked
     if (ind == 2) {
       dispatch(setVerificationType(''));
+      refScreens.refScreens.current.close();
     }
     setInd(prevInd => (prevInd + 1) % 3);
 
@@ -379,7 +381,7 @@ function FullProofUpload() {
 }
 function ProofUpload() {
   const navigation = useNavigation();
-  const photo = useSelector(state => state.image);
+  // const photo = useSelector(state => state.image);
   const styles = getStyles();
   const Color = getColor(useSelector(state => state.theme.theme));
   const shimmerColors = [
@@ -408,7 +410,7 @@ function ProofUpload() {
           }}>
             <Pressable onPress={()=>{
               navigation.navigate('Recording',{mode:'isProfile'})
-              console.log(photo)
+              // console.log(photo)
               }}>
           <View
             style={{

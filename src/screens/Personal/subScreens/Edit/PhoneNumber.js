@@ -296,7 +296,7 @@ const PhoneNumber = () => {
           onPress={phoneNumberHandler}
           style={{
             borderRadius: 10,
-            backgroundColor: Color.aquaBlue,
+            backgroundColor: Color.textfieldContainer,
             width: '15%',
             justifyContent: 'center',
             alignItems: 'center',
@@ -307,7 +307,7 @@ const PhoneNumber = () => {
                 ? require('../../assets/icons/user-octagon.png')
                 : require('../../assets/icons/sendBold.png')
             }
-            style={{width: 30, height: 30, tintColor: Color.blue}}
+            style={{width: 30, height: 30, tintColor: Color.calend_card_color1}}
           />
         </Pressable>
       </View>
@@ -316,7 +316,7 @@ const PhoneNumber = () => {
         My Phone Numbers{' '}
       </Text>
       {myPhoneNumbers.map((phoneNumber, ind) => (
-        <View style={styles.inputContainerRow}>
+        <View style={styles.inputContainerRow} key={ind}>
           <Text style={styles.cardTitle}>{phoneNumber.number}</Text>
           <View style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center'}}>
           {/* {ind != primary ? ( */}

@@ -571,6 +571,7 @@ const [selectedLocation, setSelectedLocation] = useState(null);
             <TouchableOpacity
               key={index}
               onPress={() => handleTagSelection(tag)}
+            
             >
               <Text style={styless.suggestedTag}>{tag}</Text>
             </TouchableOpacity>

@@ -165,7 +165,7 @@ const ImagePreview = ({ route, navigation }) => {
       const queryParams = {
         document_category: 'personal',
         document_type: 'image',
-        file_folder: 'sriram',
+        file_folder: 'Images',
         file_name: `${currentdate.getHours()+":"+ currentdate.getMinutes()+":"  + currentdate.getSeconds()}`,
         description: 'newimage',
         eh_user_role_id: 'EHURO117',
@@ -194,7 +194,7 @@ const ImagePreview = ({ route, navigation }) => {
         console.log('Image uploaded successfully.');
         let path = response.data.fields.key;
       //  dispatch(setBackendUri(path))
-        console.log(response.data.fields.key,"FOFOFOFOOFOFOOFOFOOOFOO")
+        console.log(response.data.fields.key)
        // setSelectedImage(null);
       } else {
         console.log('Failed to upload Image:', response.status);
@@ -214,7 +214,7 @@ const ImagePreview = ({ route, navigation }) => {
       date:formattedDate,
       images:imageUri,
     }
-    console.log(myobj,"-------------------");
+    console.log(myobj);
 }
 
   const saveImageToCameraRoll = async () => {

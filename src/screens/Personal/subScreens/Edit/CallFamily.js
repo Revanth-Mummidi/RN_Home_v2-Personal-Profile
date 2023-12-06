@@ -21,14 +21,15 @@ import {useDispatch, useSelector} from 'react-redux';
 import CountryCode from '../../../Login/components/CountyCodePicker';
 import ContactsList from './ContactsList';
 import { setUserName } from '../../../../utils/LocalStorage';
-
+import { FetchEmergencyContacts, addEmergencyContacts } from '../../utils/PersonalServerRequests';
+//changed
 const CallFamily = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
   const [userName,setUserName]=useState('');
   const [addContacts, setAddContacts] = React.useState(false);
   // const [phoneNumber, setPhoneNumber] = React.useState('');
- 
+  const CurrentProfile=useSelector(state=>state.PersonalReducers.general_states).current_user_profile;
   const [phoneNumber, setPhoneNumber] = useState('');
   const [relation,setRelation]=useState('');
   const [dpn, setDpn] = useState('');
@@ -40,17 +41,18 @@ const CallFamily = () => {
   const [temparr,settemparr]=useState([0,0,0]);
   const refCC = useRef(null);
   const [count,setCount]=useState(0);
-  refAddFamily = React.useRef(null);
-  useEffect(()=>{
-   setCount(1);
+  const [ContactList,setContactList]=useState([]);
+  const refAddFamily = React.useRef(null);
+  // useEffect(()=>{
+  //  setCount(1);
 
-    if(mod)
-    refAddFamily.current.close();
-    else if(count!=0)
-    {
-      refAddFamily.current.open();
-    }
-  },[mod]);
+  //   if(mod)
+  //   refAddFamily.current.close();
+  //   else if(count!=0)
+  //   {
+  //     refAddFamily.current.close();
+  //   }
+  // },[mod]);
   useEffect(()=>{
     let arr=[0,0,0],brr=[0,0,0];
     if(userName=='')
@@ -95,6 +97,13 @@ const CallFamily = () => {
     setShowError(brr);
     settemparr(arr);
   },[phoneNumber,relation,userName]);
+  useEffect(()=>{
+    const fetchContacts=async()=>{
+      const arr=await FetchEmergencyContacts(CurrentProfile.dependant_access_token);
+      setContactList(arr);
+    }
+    fetchContacts();
+  },[]);
   function fetchPhoneNumber(enteredNumber) {
     setPhoneNumber(enteredNumber);
   }
@@ -123,8 +132,9 @@ const CallFamily = () => {
       setMod(true);
   }
 
-  function savePhoneNumber() {
+ const savePhoneNumber= async(refAddFamily)=> {
     // if (myPhoneNumbers.length <= 2)
+    try{
    let c=0, arr=temparr;
   arr.map((data,index)=>{
    if(data==1)
@@ -133,24 +143,31 @@ const CallFamily = () => {
    }
   });
   if(c==0){
-     setMyPhoneNumbers(phoneList => [...phoneList, {
+    const param={
       name:userName,
       phoneNumber:phoneNumber,
       relation:relation
-    }]);
+    };
+     setMyPhoneNumbers(phoneList => [...phoneList, param]);
     // console.log("MY PHONE NUMBERS",myPhoneNumbers);
     setPhoneNumber('');
     setRelation('');
     setUserName('');
     // setDpn('');
+  
+    await addEmergencyContacts(CurrentProfile.dependant_access_token,param);
+    refAddFamily.current.close();
   }
   else
   {
     setShowError(arr);
+  }}
+  catch(err){
+    console.log("ERROR IN EMERGENCY CONTACT=",err);
   }
   }
 
-  const addContact = (data, index) => {
+  const addContact = (refAddFamily) => {
     // useEffect(()=>{
     //  refAddFamily.current.close();
     //  setMod(true);
@@ -234,7 +251,7 @@ const CallFamily = () => {
          error={showError[2]?"This field can't be empty":null}
         />
         <Pressable onPress={() => {
-           savePhoneNumber();
+           savePhoneNumber(refAddFamily);
         }} style={styles.mediumButton}>
           <Text style={styles.buttonText14}>{Strings.buttonSave}</Text>
         </Pressable>
@@ -247,7 +264,7 @@ const CallFamily = () => {
       <HandleBottomSheet
         containerStyle={{backgroundColor: Color.WHITE}}
         bottomSheetRef={refAddFamily}
-        content={addContact()}
+        content={addContact(refAddFamily)}
         dragFromTop={true}
         height={500}
         draggableIcon={{backgroundColor: Color.BLACK, width: 100}}
@@ -255,6 +272,7 @@ const CallFamily = () => {
         <ContactsList
             mod={mod}
             setMod={setMod}
+            refer={refAddFamily}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}
           />
@@ -263,6 +281,7 @@ const CallFamily = () => {
         showIcon={true}
         onPressIcon={() => {
           setMod(true);
+           refAddFamily.current.close();
           // refAddFamily.current.open();          
         }}>
         <FlatList

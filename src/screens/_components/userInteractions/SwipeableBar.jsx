@@ -269,14 +269,14 @@ const SwipeableBarIOS = ({
               height: iconBgHeight,
               width: iconBgWidth,
             }}>
-            <Image
+            {image !=null? (<Image
               source={image}
               style={{
                 ...commonStyles.image,
                 height: iconHeight,
                 width: iconWidth,
               }}
-            />
+            />):null}
           </View>
 
           <MaskedView

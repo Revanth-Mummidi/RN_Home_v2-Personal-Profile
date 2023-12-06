@@ -42,9 +42,9 @@ export default function AppHeader({
   const list = isProfessional ? professional : profile;
   const [selectedItem,setSelectedItem]=useState(dependentUsers[0]);
   const [current, setCurrent] = useState(list[user]);
-  useEffect(() => {
-    console.log("IN APP HEADER",dependentUsers);
-  }, []);
+  // useEffect(() => {
+  //   console.log("IN APP HEADER",dependentUsers);
+  // }, []);
 
   return (
     <>

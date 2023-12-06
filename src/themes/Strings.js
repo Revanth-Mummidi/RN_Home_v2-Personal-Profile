@@ -50,7 +50,7 @@ export default {
   otpSendMobile: `Enter OTP send to mobile`,
   enterMobile: 'Enter Mobile Number',
   generateOTP: 'Send OTP',
-  notReceiveOTP: 'Didn’t receive the OTP ?',
+  notReceiveOTP: 'Did not receive the OTP ?',
   resendOTP: 'Resend OTP',
   verifyOTP: 'Verify OTP',
   id: 0,

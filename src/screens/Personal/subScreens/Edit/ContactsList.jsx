@@ -20,7 +20,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {getColor} from '../../../../themes/GetColor';
 import { Toast } from '../../../_components';
 import { errorToast } from '../../../_components/toast/toast';
-const ContactsList = ({mod, setMod,setPhoneNumber,setUserName=()=>{}}) => {
+const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{}}) => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const [selectedItems, setSelectedItems] = useState(null);
   const [num, setNum] = useState([]);
@@ -103,6 +103,7 @@ const ContactsList = ({mod, setMod,setPhoneNumber,setUserName=()=>{}}) => {
             errorToast("invalid number");
           }
           setUserName(item.displayName);
+          refer.current.open();
           setMod(false);
         }}>
         <View style={[{borderRadius:13,padding:20},isSelected && selectedObject==item?{backgroundColor:Color.badge_bg}:{backgroundColor:Color.textfieldContainer}]}>
@@ -196,6 +197,9 @@ const ContactsList = ({mod, setMod,setPhoneNumber,setUserName=()=>{}}) => {
       
       animationType="slide"
       onRequestClose={()=>{
+       
+        console.log("REF",refer);
+        refer.current.close();
         setMod(false);
       }}
       onTouchCancel={()=>{setMod(false)}}
@@ -217,6 +221,8 @@ const ContactsList = ({mod, setMod,setPhoneNumber,setUserName=()=>{}}) => {
             <View>
               <TouchableOpacity
                 onPress={() => {
+                  console.log("refer",refer);
+                  refer.current.close();
                   setVisibleContacts(false);
                   setMod(false);
                 }}>
@@ -248,6 +254,7 @@ const ContactsList = ({mod, setMod,setPhoneNumber,setUserName=()=>{}}) => {
               // setPhoneNumber(selectedObject.phoneNumbers[0].number);
               // setUserName(selectedObject.displayName);
               // setMod(false);
+              refer.current.open();
               setPhoneNumber('');
               setUserName('');
               setMod(false);
