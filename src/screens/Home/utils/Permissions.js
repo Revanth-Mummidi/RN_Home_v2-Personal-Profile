@@ -228,7 +228,7 @@ export async function requestCameraPermission () {
       },
     };
 
-   await launchCamera(options, (response) => {
+   const res = await launchCamera(options, (response) => {
       if (response.didCancel) {
         console.log('User cancelled camera picker');
       } else if (response.error) {
@@ -241,6 +241,8 @@ export async function requestCameraPermission () {
       }
       return response;
     });
+
+    return res;
   };
 
   

@@ -1,6 +1,6 @@
-import { Pressable, Text, View, Image, ScrollView, FlatList } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { Color, Strings } from '../../../../themes';
+import {Pressable, Text, View, Image, ScrollView, FlatList} from 'react-native';
+import React, {useEffect, useState} from 'react';
+import {Color, Strings} from '../../../../themes';
 import {
   DateOnlyPicker,
   TextInputFields,
@@ -9,12 +9,17 @@ import {
 import ExpandableCalendarTest from '../../../_components/calenders/ExpandableCalendarTest';
 // import styles from '../../utils/PersonalStyles';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { useDispatch, useSelector } from 'react-redux';
-import { getColor } from '../../../../themes/GetColor';
+import {useDispatch, useSelector} from 'react-redux';
+import {getColor} from '../../../../themes/GetColor';
 import DateTimeScrollablePicker from '../../../Calender/Components/DateTimeScrollablePicker';
 import getStyles from '../../utils/PersonalStyles';
-import { accessDependent, addDependent, getMainProfile, getMembers } from '../../utils/PersonalServerRequests';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import {
+  accessDependent,
+  addDependent,
+  getMainProfile,
+  getMembers,
+} from '../../utils/PersonalServerRequests';
+import {SafeAreaView} from 'react-native-safe-area-context';
 
 import {
   ClearAddMembeData,
@@ -29,29 +34,40 @@ import {
   set_AddMember_Relation,
   set_AddMember_Religion,
 } from '../../slices/AddMemberSlice';
-import { responsiveHeight, responsiveWidth } from '../../../../themes/ResponsiveDimensions';
-import { t } from '../../../../services/language/Translate';
-import { getApiKey } from '../../../../utils/LocalStorage';
-import HomeAPI, { Base_URLs } from '../../../More/utils/MoreAPI';
-import { Axios } from 'axios';
-import { useNavigation } from '@react-navigation/native';
-import { RefetchDependentUsers, fetchDependentUsers } from '../../utils/DependentUsersRequest';
-import { setDependantUsers, setDependantUsersEHID } from '../../../../redux/slices/AddDependantUserSlice';
+import {
+  responsiveHeight,
+  responsiveWidth,
+} from '../../../../themes/ResponsiveDimensions';
+import {t} from '../../../../services/language/Translate';
+import {getApiKey} from '../../../../utils/LocalStorage';
+import HomeAPI, {Base_URLs} from '../../../More/utils/MoreAPI';
+import {Axios} from 'axios';
+import {useNavigation} from '@react-navigation/native';
+import {
+  RefetchDependentUsers,
+  fetchDependentUsers,
+} from '../../utils/DependentUsersRequest';
+import {
+  setDependantUsers,
+  setDependantUsersEHID,
+} from '../../../../redux/slices/AddDependantUserSlice';
 //Personal add child member
-export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
+export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const CurrentProfile=useSelector(state=>state.PersonalReducers.general_states).current_user_profile;
+  const CurrentProfile = useSelector(
+    state => state.PersonalReducers.general_states,
+  ).current_user_profile;
   const obj = useSelector(state => state.PersonalReducers.add_member);
   const [gender, setGender] = useState(obj.gender);
   const [selected, setSelected] = useState(obj.blood_group);
   const [dob, setDob] = useState(new Date(obj.date_of_birth));
   const [relationShip, setRelationShip] = useState(obj.relation);
-  const firstName=obj.first_name;
-  const lastName=obj.last_name;
-  
+  const firstName = obj.first_name;
+  const lastName = obj.last_name;
+
   const username = CurrentProfile.user_first_name;
   const BloodGrp = [
     'A+',
@@ -67,9 +83,9 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
   ];
   var activeColor = Color.personal_profile.icons.activeColor;
   var inActiveColor = Color.personal_profile.icons.inactiveColor;
-  useEffect(()=>{
-   console.log("EDIT ADD MEMBER=",obj);
-  },[]);
+  useEffect(() => {
+    console.log('EDIT ADD MEMBER=', obj);
+  }, []);
   useEffect(() => {
     dispatch(set_AddMember_Gender(gender));
     if (gender == '') {
@@ -118,17 +134,15 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
     console.log('ARRAY=', arr, 'val', value, 'ind', index);
     setErrorArray(arr);
   };
-  const fetchAccessDependent = async (data) => {
-
+  const fetchAccessDependent = async data => {
     let dat = await accessDependent(data);
     let mainProfile = await getMainProfile();
     // console.log("MAIN PROFILE=",mainProfile);
     const combinedData = [mainProfile, ...dat];
     // console.log("COMBINED DATA",combinedData);
     dispatch(setDependantUsers(combinedData));
-  }
+  };
   const fetchDependentUsers = async () => {
-
     let arr = await getMembers();
     arr = arr.data.data;
     let array1 = arr.map((data, index) => {
@@ -138,11 +152,11 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
     dispatch(setDependantUsersEHID(array1));
     let arr3 = [];
     arr3 = array1.map((data, index) => {
-      return { dependent_user_id: data };
+      return {dependent_user_id: data};
     });
     fetchAccessDependent(arr3);
-  }
-  const handleCreate = async (object) => {
+  };
+  const handleCreate = async object => {
     try {
       const queryParams = {
         user_first_name: object.first_name,
@@ -155,8 +169,8 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
         religion: '',
         relation: object.relation,
       };
-      const response = await addDependent(queryParams)
-      console.log(response)
+      const response = await addDependent(queryParams);
+      console.log(response);
     } catch (err) {
       console.log(err);
     }
@@ -172,10 +186,13 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
           backgroundColor: Color.WHITE,
         }}>
         <Text
-          style={[styles.heading17, styles.headingStyle, { paddingBottom: 5 }]}
+          style={[styles.heading17, styles.headingStyle, {paddingBottom: 5}]}
           i18nIsDynamicList={true}>
-          {t('Personal Profile.Add Member.Add new member')} {'\n'}
-          <Text i18nIsDynamicList={true} style={{ ...styles.subHeading13 }}>
+          {obj.IsEdit
+            ? t('Personal Profile.Add Member.Add new member')
+            : 'Edit dependent user'}{' '}
+          {'\n'}
+          <Text i18nIsDynamicList={true} style={{...styles.subHeading13}}>
             {t("Personal Profile.Add Member.Manage Family's Health")}
           </Text>
         </Text>
@@ -183,7 +200,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
         <CameraComponent i18nIsDynamicList={true} />
         {/* First name and Last Name */}
         <View style={styles.textFieldRowBetween} i18nIsDynamicList={true}>
-          <View style={{ width: '49%' }} i18nIsDynamicList={true}>
+          <View style={{width: '49%'}} i18nIsDynamicList={true}>
             <TextInputFields
               i18nIsDynamicList={true}
               value={firstName}
@@ -205,7 +222,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
               error={showError[0] ? 'It should not be empty !' : ''}
             />
           </View>
-          <View style={{ width: '49%' }} i18nIsDynamicList={true}>
+          <View style={{width: '49%'}} i18nIsDynamicList={true}>
             <TextInputFields
               i18nIsDynamicList={true}
               value={lastName}
@@ -226,11 +243,11 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
         <TileCardContainer
           title={t('Personal Profile.Add Member.Date of Birth *')}
           titleStyle={[
-            showError[2] ? { color: Color.red } : null,
-            { paddingBottom: 5 },
+            showError[2] ? {color: Color.red} : null,
+            {paddingBottom: 5},
           ]}
-          containerStyle={{ ...styles.tileCardContainer }}>
-          <View style={{ overflow: 'hidden' }} i18nIsDynamicList={true}>
+          containerStyle={{...styles.tileCardContainer}}>
+          <View style={{overflow: 'hidden'}} i18nIsDynamicList={true}>
             <DateTimeScrollablePicker
               newDate={dob}
               width={responsiveWidth(70)}
@@ -248,9 +265,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
                 }
                 setDob(date);
                 // console.log(date.toLocaleDateString())
-                dispatch(
-                  set_AddMember_DateOfBirth(new Date(e)),
-                );
+                dispatch(set_AddMember_DateOfBirth(new Date(e)));
               }}
             />
           </View>
@@ -263,7 +278,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
         <TileCardContainer
           i18nIsDynamicList={true}
           title={t('Personal Profile.Add Member.Gender *')}
-          titleStyle={showError[3] ? { color: Color.red } : null}
+          titleStyle={showError[3] ? {color: Color.red} : null}
           containerStyle={styles.tileCardContainer}>
           <View
             style={{
@@ -374,7 +389,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
           i18nIsDynamicList={true}
           title={t('Personal Profile.Add Member.Blood Group')}
           containerStyle={styles.tileCardContainer}>
-          <View style={{ alignItems: 'center', paddingVertical: 5 }}>
+          <View style={{alignItems: 'center', paddingVertical: 5}}>
             <View
               style={{
                 justifyContent: 'flex-end',
@@ -382,13 +397,13 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
                 flexDirection: 'row',
                 alignItems: 'center',
               }}>
-              <View style={{ flex: 1 }}>
+              <View style={{flex: 1}}>
                 <FlatList
                   scrollEnabled={false}
                   horizontal={false}
                   numColumns={4}
                   data={BloodGrp}
-                  // keyExtractor ={ (item) => item.id}
+                  keyExtractor ={ (item) => item.id}
                   renderItem={(item, index) => {
                     // console.log("VAL",item);
                     return (
@@ -403,7 +418,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
                             selected == item.item
                               ? styles.active
                               : styles.inActive,
-                            { textAlign: 'center' },
+                            {textAlign: 'center'},
                           ]}>
                           {item.item}
                         </Text>
@@ -417,7 +432,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
           </View>
         </TileCardContainer>
         {/* Relation with main user */}
-        <View style={{ paddingVertical: 10 }}>
+        <View style={{paddingVertical: 10}}>
           <TextInputFields
             label={t('Personal Profile.Add Member.Relation with', {
               username: username,
@@ -436,7 +451,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
           />
         </View>
         {/* Profession */}
-        <View style={{ paddingVertical: 10 }}>
+        <View style={{paddingVertical: 10}}>
           <TextInputFields
             label={t('Personal Profile.Add Member.Profession')}
             onChange={e => {
@@ -445,7 +460,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
           />
         </View>
         {/* Nationality  */}
-        <View style={{ paddingVertical: 10 }}>
+        <View style={{paddingVertical: 10}}>
           <TextInputFields
             label={t('Personal Profile.Add Member.Nationality')}
             onChange={e => {
@@ -455,7 +470,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
         </View>
         {/* Ethnicity and Religion  */}
         <View style={styles.textFieldRowBetween}>
-          <View style={{ width: '49%' }}>
+          <View style={{width: '49%'}}>
             <TextInputFields
               label={t('Personal Profile.Add Member.Ethnicity')}
               onChange={e => {
@@ -463,7 +478,7 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
               }}
             />
           </View>
-          <View style={{ width: '49%' }}>
+          <View style={{width: '49%'}}>
             <TextInputFields
               label={t('Personal Profile.Add Member.Religion')}
               onChange={e => {
@@ -472,46 +487,60 @@ export default function PersonalAddChildMember({ selectedGender, bloodGroup }) {
             />
           </View>
         </View>
-        {/* Create  */}
-        <Pressable
-          onPress={() => {
-            // setArrActive(1,5);
-            let c = 0,
-              arr = errorArray, arr2;
-            arr2 = arr.map((data, index) => {
-              if (data == 0) {
-                c = 1;
-                return 1;
-              }
-              else {
-                return 0;
-              }
-            });
-            let arr1 = showError;
-            arr1.map((data, index) => {
-              if (data == 1) {
-                c = 1;
-              }
-            });
-            setShowError(arr2);
-            if (c == 0) {
-              handleCreate(obj);
-              console.log("CREATE CLICKED");
-              fetchDependentUsers();
-              navigation.goBack();
-              dispatch(ClearAddMembeData());
-            }
-
-          }}
-          style={{
-            ...styles.mediumButton,
-            marginBottom: responsiveHeight(13),
-            backgroundColor: Color.personal_profile.icons.activeColor,
-          }}>
-          <Text style={{ ...styles.buttonText14, padding: 2 }}>
-            {t('Personal Profile.Add Member.Create')}
-          </Text>
-        </Pressable>
+        <View
+          style={{marginBottom: responsiveHeight(13), flexDirection: 'row',marginTop:10}}>
+          {/* Delete  */}
+          <Pressable
+            onPress={() => {handleDelete()}}
+            style={{
+              ...styles.mediumButton,
+              // marginBottom: responsiveHeight(13),
+              // backgroundColor: Color.personal_profile.icons.activeColor,
+              backgroundColor:Color.red
+            }}>
+            <Text style={{...styles.buttonText14, padding: 2,color:'white'}}>Delete</Text>
+          </Pressable>
+          {/* Create  */}
+          <View style={{flex: 1, justifyContent: 'flex-end'}}>
+            <Pressable
+              onPress={() => {
+                // setArrActive(1,5);
+                let c = 0,
+                  arr = errorArray,
+                  arr2;
+                arr2 = arr.map((data, index) => {
+                  if (data == 0) {
+                    c = 1;
+                    return 1;
+                  } else {
+                    return 0;
+                  }
+                });
+                let arr1 = showError;
+                arr1.map((data, index) => {
+                  if (data == 1) {
+                    c = 1;
+                  }
+                });
+                setShowError(arr2);
+                if (c == 0) {
+                  handleCreate(obj);
+                  console.log('CREATE CLICKED');
+                  fetchDependentUsers();
+                  navigation.goBack();
+                  dispatch(ClearAddMembeData());
+                }
+              }}
+              style={{
+                ...styles.mediumButton,
+                backgroundColor: Color.personal_profile.icons.activeColor,
+              }}>
+              <Text style={{...styles.buttonText14, padding: 2}}>
+                {obj.IsEdit?t('Personal Profile.Add Member.Create'):'Edit'}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -522,7 +551,7 @@ function CameraComponent() {
   const navigation = useNavigation();
   const Color = getColor(useSelector(state => state.theme.theme));
   const photo = useSelector(state => state.image);
-  console.log(photo)
+  console.log(photo);
   return (
     <View
       style={{
@@ -531,7 +560,10 @@ function CameraComponent() {
         justifyContent: 'center',
         marginVertical: 20,
       }}>
-      <Pressable onPress={() => { navigation.navigate('Recording', { mode: 'isProfile' }) }}>
+      <Pressable
+        onPress={() => {
+          navigation.navigate('Recording', {mode: 'isProfile'});
+        }}>
         <View
           style={{
             justifyContent: 'center',
@@ -552,17 +584,22 @@ function CameraComponent() {
             {!photo.uri ? (
               <MaterialIcons
                 name="camera-alt"
-                style={{ height: 60, width: 60 }}
+                style={{height: 60, width: 60}}
                 size={60}
-              />) : (
-              <Image
-                source={{ uri: photo.uri }}
-                style={{ width: 100, height: 100, borderRadius: 100, resizeMode: 'contain' }}
               />
-            )
-            }
+            ) : (
+              <Image
+                source={{uri: photo.uri}}
+                style={{
+                  width: 100,
+                  height: 100,
+                  borderRadius: 100,
+                  resizeMode: 'contain',
+                }}
+              />
+            )}
           </View>
-          <View style={{ marginTop: 15 }}>
+          <View style={{marginTop: 15}}>
             <Text style={styles.subHeading13}>
               {t('Personal Profile.Add Member.Add a Profile Photo')}
             </Text>

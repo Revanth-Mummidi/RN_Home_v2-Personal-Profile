@@ -22,7 +22,7 @@ import OTPBottomSheet from '../../../Login/components/OTPBottomSheet';
 import { generateOTP, verifyOTP } from '../../../../apis/ApiRequests';
 import { addBasicDetails } from '../../utils/PersonalServerRequests';
 import VerificationSlice from '../../slices/VerificationSlice';
-const PhoneNumber = () => {
+const PhoneNumber = ({refScreens}) => {
   const [otpBottomVisible, setOtpBottomVisible] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
   const [otp, setOtp] = useState('');
@@ -84,6 +84,7 @@ const PhoneNumber = () => {
   const renderCCBottomSheet = () => {
     return (
       <CountryCode
+      
         onChange={value => {
           setCountryCode(value);
           refCC.current.close();
@@ -216,7 +217,7 @@ const PhoneNumber = () => {
    const arr=myPhoneNumbers.filter((data,index)=> index!=primary);
    console.log("MOBILE NUMBER=",arr);
    console.log("Primary NUMBER=",mobileNumber);
-   addBasicDetails(CurrentProfile.dependent_access_token,{
+   addBasicDetails(CurrentProfile.access_token,{
     mobileno:mobileNumber==undefined?'':mobileNumber,
     alternate_mobileno:[...arr].length==0?'':arr,
     alternate_email_id:'',
@@ -267,7 +268,7 @@ const PhoneNumber = () => {
           </Pressable>
         </View>
         {/* <Modal visible={mod} onRequestClose={()=>{setMod(false)}} > */}
-                <ContactsList mod={mod} setMod={setMod} setPhoneNumber={savephnumber}/>
+                <ContactsList refer={refScreens} create={false} mod={mod} setMod={setMod} setPhoneNumber={savephnumber}/>
         {/* </Modal> */}
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {/* <CountryCode onChange={()=>{}}/> */}

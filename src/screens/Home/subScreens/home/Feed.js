@@ -336,7 +336,7 @@ const Feed = ({
           item.feed.map((data,index) =>{
           
          return (
-          <>
+          <View key={index}>
           <Pressable onPress={()=>{
             scrollToImage(index);
             setVisible(true);
@@ -353,7 +353,7 @@ const Feed = ({
           />
           </Pinchable>
           </Pressable>
-          </>
+          </View>
           
           )
             

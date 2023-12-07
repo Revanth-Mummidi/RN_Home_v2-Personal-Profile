@@ -69,7 +69,7 @@ const BMI = (refScreens) => {
             dispatch(setBMI(bmi));
             dispatch(setBMIWeight(weight));
             dispatch(setBMIHeight(height));
-            addBasicDetails(CurrentProfile.dependent_access_token,{
+            addBasicDetails(CurrentProfile.access_token,{
               mobileno:'',
               alternate_mobileno:'',
               alternate_email_id:'',

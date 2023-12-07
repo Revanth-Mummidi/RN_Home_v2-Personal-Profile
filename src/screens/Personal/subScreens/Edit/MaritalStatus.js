@@ -94,7 +94,7 @@ const MaritalStatus = (refScreens) => {
       
       onPress={() => {
          dispatch(setMaritalStatus(selected));
-         addBasicDetails(CurrentProfile.dependent_access_token,{
+         addBasicDetails(CurrentProfile.access_token,{
           mobileno:'',
           alternate_mobileno:'',
           alternate_email_id:'',

@@ -1,10 +1,10 @@
 import React,{useState,useEffect}from 'react';
 import {Text, View, Appearance, StyleSheet} from 'react-native';
-import {Loader} from '../screens/_components';
+import {DefaultCamera, DocumentPicker, GalleryPicker, Loader} from '../screens/_components';
 import {NavigationContainer, useNavigation} from '@react-navigation/native';
 import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {setApiKey, getApiKey} from '../utils/LocalStorage';
-import {getUserProfile, accessDependent, getMainProfile, getMembers} from '../screens/Personal/utils/PersonalServerRequests';
+import {getUserProfile, accessDependent, getMainProfile, getMembers, getDependentUsers} from '../screens/Personal/utils/PersonalServerRequests';
 import BottomTab from './bottomTab/BottomTab';
 import Recording from '../screens/Home/subScreens/home/Recording';
 import BarcodeScanner  from '../screens/Home/subScreens/home/Qrcode';
@@ -32,9 +32,10 @@ import PersonalStack from '../screens/Personal/PersonalStack.js';
 import i18next from '../services/language/i18next.js';
 import { setLang } from '../redux/slices/LanguageSlice.js';
 import Welcome from '../screens/Login/Welcome';
-import { setDependantUsers, setDependantUsersEHID } from '../redux/slices/AddDependantUserSlice.jsx';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../redux/slices/AddDependantUserSlice.jsx';
 import { fetchDependentUsers } from '../screens/Personal/utils/DependentUsersRequest.jsx';
 import { setBMIWeight, setCurrentUserProfile } from '../screens/Personal/slices/PersonalProfileStates.jsx';
+import { fetchUserProfileData } from '../screens/Home/utils/HomeServerRequests.js';
 
 
 const Stack = createNativeStackNavigator();
@@ -86,6 +87,7 @@ const MasterNavigator = () => {
       if (data != 'error') {
         console.log("DATA NOT ERROR")
         setIsUserLoggedIn(true);
+        await fetchDependentUsers();
         setIntialRoute('BottomTab');
       } else {
         console.log("DATA ---------------- ERROR")
@@ -102,13 +104,16 @@ const MasterNavigator = () => {
   };
   const fetchAccessDependent=async(data)=>{
     try{
-    let dat= await accessDependent(data);
-    let mainProfile=await  getMainProfile();
+    let dependantArray= await getDependentUsers(data);
+    // dependantArray=[...dependantArray];
+    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    let mainProfile=await getMainProfile();
+    dispatch(setParentProfile(mainProfile));
     dispatch(setCurrentUserProfile(mainProfile));
     // console.log("MAIN PROFILE=",mainProfile);
-    // const profile=await getUserProfile(selectedItem.dependent_access_token,selectedItem.Profile_Picture)
+    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
 
-    const combinedData=[mainProfile,...dat];
+    const combinedData=[mainProfile,...dependantArray];
     console.log("COMBINED DATA",combinedData);
 
     dispatch(setDependantUsers(combinedData));
@@ -119,14 +124,14 @@ const MasterNavigator = () => {
     try{
       let arr=await getMembers();
       arr=arr.data.data;
-      let array1=arr.map((data,index)=>{
-        return data.child_eh_user_id;
-      });
+      // let array1=arr.map((data,index)=>{
+      //   return data.child_eh_user_id;
+      // });
      
       dispatch(setDependantUsersEHID(arr));
       let arr3=[];
-     arr3= array1.map((data,index)=>{
-         return {dependent_user_id:data};
+     arr3= arr.map((data,index)=>{
+         return {authToken:data.dependent_access_token};
       });
       fetchAccessDependent(arr3);
     }catch(err){
@@ -139,7 +144,7 @@ const MasterNavigator = () => {
     initialCheck();
     fetchTheme();
     addLang();
-    fetchDependentUsers();
+    
     const subscription = Appearance.addChangeListener(handleChange);
     return () => subscription.remove();
   }, [isUserLoggedIn]);
@@ -176,7 +181,7 @@ const MasterNavigator = () => {
     ):(
 
         
-               <Stack.Navigator screenOptions={{ headerShown: false }}>
+                  <Stack.Navigator screenOptions={{ headerShown: false }}>
                   <Stack.Screen name="BottomTab" component={BottomTab} />
                   <Stack.Screen name="PdfView" component={PdfView} />
                   <Stack.Screen name="Preview" component={Preview} />
@@ -192,6 +197,10 @@ const MasterNavigator = () => {
                   <Stack.Screen name="Status" component={Status}/>
                   <Stack.Screen name="Welcome" component={Welcome}/>
                   <Stack.Screen name='PersonalStack' component={PersonalStack}/>
+                  <Stack.Screen name='GalleryPicker' component={GalleryPicker}/>
+                  <Stack.Screen name='DocumentPicker' component={DocumentPicker}/>
+                  <Stack.Screen name='DefaultCamera' component={DefaultCamera}/>                  
+                
             </Stack.Navigator>
          
       )

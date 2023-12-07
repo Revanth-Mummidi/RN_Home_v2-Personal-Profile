@@ -17,6 +17,7 @@ export const Base_URLs = {
   CreateMember_URL: URL + 'profile/createMember',
   CreatePin_URL: URL + 'profile/createPin',
   DeleteAllergy_URL: URL + 'profile/deleteAllergy',
+  DeleteAddress_URL: URL + 'profile/profile/deleteAddress',
   EditAddress_URL: URL + 'profile/editAddress',
   EditBasicDetails_URL: URL + 'profile/profile/editBasicDetails',
   EditConsent_URL: URL + 'profile/editConsent',

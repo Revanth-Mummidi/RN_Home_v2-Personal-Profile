@@ -32,11 +32,16 @@ export {default as HandleBottomSheet} from './bottomSheet/HandleBottomSheet';
 
 // UIStyles Sheet >>>>>>>>>>>>>>>>>>>>>
 export {default as FetchColors} from './uiStyles/FetchColors';
+export {default as GetRandomLGColors} from './uiStyles/GetRandomLGColors.js';
 
 // Image Processing >>>>>>>>>>>>>>>>>>>>>
 export {default as imageUploader} from './imageProcessing/imageUploader';
 export {default as ImageAutoScale} from './imageProcessing/imageAutoScale.tsx';
-
+export {default as DocumentPicker} from './imageProcessing/DocumentPicker.js';
+export {default as GalleryPicker} from './imageProcessing/GalleryPicker.js';
+export {default as MediaWrapper} from './imageProcessing/MediaWrapper.js';
+export {default as Qrcode} from './imageProcessing/Qrcode.js';
+export {default as DefaultCamera} from './imageProcessing/DefaultCamera.js';
 // Animations >>>>>>>>>>>>>>>>>>>>>
 export {default as Loader} from './loader/Loader';
 

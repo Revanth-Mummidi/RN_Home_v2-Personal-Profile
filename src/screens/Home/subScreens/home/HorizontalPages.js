@@ -86,7 +86,7 @@ const HorizontalPages = ({}) => {
           horizontal
           showsHorizontalScrollIndicator={false}>
           {products.map((product, index) => (
-            <Card product={product}  know = {index} />
+            <Card product={product}  know = {index} key={index}/>
           ))}
         </Animated.ScrollView>
         <Text style={{position: 'absolute', bottom: 28, alignSelf: 'center'}}>

@@ -7,9 +7,11 @@ import LangReducer from './slices/LanguageSlice'
 import ProfilePicSlice from './slices/ProfilePicSlice';
 import PersonalProfileSlice from '../screens/Personal/slices/PersonalProfileSlice'
 import AddDependantUserSlice from './slices/AddDependantUserSlice';
+import MediaSlice from './slices/MediaSlice';
 
 
 const rootreducer = combineReducers({
+  screen:MediaSlice,
   theme: ThemeReducer,
   userOnboarding: UserOnboardingReducer,
   lang:LangReducer,

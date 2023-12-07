@@ -17,6 +17,7 @@ import ProfileSliderList from './ProfileSliderList';
 import {ThemeContext} from '../../../themes/components/ThemeContext';
 import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../themes/ResponsiveDimensions';
 import { useSelector } from 'react-redux';
+import getRandomLGColor from '../uiStyles/GetRandomLGColors';
 
 const BAR_HEIGHT = Platform.OS === 'ios' ? 35 : StatusBar.currentHeight;
 
@@ -38,14 +39,15 @@ export default function AppHeader({
   const Color = Colors(theme);
   const styles = getStyles(Color);
   const dependentUsers=useSelector(state=>state.dependant_users).dependant_users_data;
+  const CurrentProfile=useSelector(state=>state.dependant_users).parent_profile;
   const [profileSlider, setProfileSlider] = useState(false);
   const list = isProfessional ? professional : profile;
-  const [selectedItem,setSelectedItem]=useState(dependentUsers[0]);
+  const [selectedItem,setSelectedItem]=useState(CurrentProfile);
   const [current, setCurrent] = useState(list[user]);
   // useEffect(() => {
   //   console.log("IN APP HEADER",dependentUsers);
   // }, []);
-
+ const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   return (
     <>
       <AppStatusBar
@@ -60,11 +62,14 @@ export default function AppHeader({
         {profileSlider == false && <View style={styles.container}>
           <View style={{flexDirection: 'row', alignItems: 'center',height:responsiveHeight(5)}}>
             <Pressable activeOpacity={1} style={{}} onPress={onPressImage}>
-              {/* <Image
-                source={{uri: current?.userImage}}
-                style={styles.userImage}
-              /> */}
-              <View style={{backgroundColor:'grey',...styles.userImage}}/>
+            {selectedItem && selectedItem.Profile_Picture!=null?(<Image
+                  source={{uri: selectedItem.Profile_Picture}}
+                  style={styles.userImage}
+                />):selectedItem && selectedItem.user_first_name?(
+                  <LinearGradient
+                  colors={[RandomLinearColor1, RandomLinearColor2]} style={{backgroundColor:'grey',...styles.userImage,justifyContent:'center',alignItems:'center'}}>
+                  <Text style={{fontSize:responsiveFontSize(2)}}>{selectedItem.user_first_name[0]}</Text>
+                </LinearGradient>):null}
             </Pressable>
             <Pressable
               onPress={() => {
@@ -126,17 +131,18 @@ export default function AppHeader({
                         setSelectedItem(profile);
                         setProfileSlider(!profileSlider);
                       }}>
-                      {/* <Image
-                        source={{uri: profile.userImage}}
-                        style={{
-                          height: 30,
-                          width: 30,
-                          borderRadius: 40,
-                        }}
-                      /> */}
-                      <View style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey'}}>
-
-                      </View>
+                       {profile!=null?profile.Profile_Picture!=null?(<Image
+                          source={{uri: profile.Profile_Picture}}
+                          style={{
+                            height: responsiveHeight(3),
+                            width: responsiveHeight(3),
+                            borderRadius: 40,
+                          }}
+                        />):(
+                          <LinearGradient
+                          colors={[RandomLinearColor1, RandomLinearColor2]} style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey',justifyContent:'center',alignItems:'center'}}>
+                         <Text style={{fontSize:responsiveFontSize(1.5)}}>{profile.user_first_name[0]}</Text>
+                        </LinearGradient>):null}
 
                       <Text
                         numberOfLines={1}

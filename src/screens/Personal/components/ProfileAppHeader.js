@@ -23,6 +23,8 @@ import { responsiveFontSize , responsiveHeight, responsiveWidth } from '../../..
 import { AppStatusBar } from '../../_components';
 import { setBMIHeight, setBMIWeight, setCurrentUserProfile, setMaritalStatus, setPrimaryEmails, setPrimaryMailIndex } from '../slices/PersonalProfileStates';
 import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
+import getRandomColor from '../../_components/uiStyles/GetRandomLGColors';
+import getRandomLGColor from '../../_components/uiStyles/GetRandomLGColors';
   
   const BAR_HEIGHT = Platform.OS === 'ios' ? 35 : StatusBar.currentHeight;
   
@@ -52,12 +54,14 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
     const [current, setCurrent] = useState(list[user]);
     const getAddressandProfile=async()=>{
       try {
-        const response=await fetchAddress(selectedItem.dependent_access_token)
+        const response=await fetchAddress(selectedItem.access_token)
+        console.log("AFFRES=",response.data);
         const ModidifedAddressArray = response.data.map((addressObj, index) => {
+          console.log("ADDRESS+=",addressObj);
           const newAddressObj = {
             id: addressObj.address_id,
-            nickname: addressObj.custom_title || '',
-            type: addressObj.address_type || '',
+            custom_title: addressObj.custom_title || '',
+            type: addressObj.address_label=='home'?1:0 || '',
             address: `${
               addressObj.address !== '' ? addressObj.address : ''
             }${addressObj.landmark !== '' ? ',' + addressObj.landmark : ''}${
@@ -67,7 +71,16 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
             }${addressObj.country !== '' ? ',' + addressObj.country : ''}${
               addressObj.pin_code !== '' ? '-' + addressObj.pin_code : ''
             }`,
-            verify: true,
+            verify: addressObj.verify,
+            door_no: addressObj.address,
+            landmark:addressObj.landmark,
+            city:addressObj.city,
+            district:addressObj.district,
+            state:addressObj.state,
+            pin_code:addressObj.pin_code,
+            country:addressObj.country,
+            latitude:addressObj.latitude,
+            longitude:addressObj.longitude,
             images: [],
           };
           return newAddressObj;
@@ -91,7 +104,7 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
       dispatch(setPrimaryMailIndex(0));}
        console.log("SELECTED ITEM=",selectedItem);
     }, [selectedItem]);
-  
+   const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
     return (
       <>
         <AppStatusBar
@@ -106,11 +119,14 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
           {profileSlider == false && <View style={styles.container}>
             <View style={{flexDirection: 'row', alignItems: 'center',height:responsiveHeight(5)}}>
               <Pressable activeOpacity={1} style={{}} onPress={onPressImage}>
-                {selectedItem.Profile_Picture!=null?(<Image
+                {selectedItem!=null && selectedItem.Profile_Picture!=null?(<Image
                   source={{uri: selectedItem.Profile_Picture}}
                   style={styles.userImage}
-                />):(
-                <View style={{backgroundColor:'grey',...styles.userImage}}/>)}
+                />):selectedItem!=null?(
+                  <LinearGradient
+                  colors={[RandomLinearColor1, RandomLinearColor2]} style={{backgroundColor:'grey',...styles.userImage,justifyContent:'center',alignItems:'center'}}>
+                  <Text style={{fontSize:responsiveFontSize(2)}}>{selectedItem.user_first_name[0]}</Text>
+                </LinearGradient>):null}
               </Pressable>
               <Pressable
                 onPress={() => {
@@ -173,7 +189,7 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
                           setProfileSlider(!profileSlider);
                         }}>
                         
-                        {profile.Profile_Picture!=null?(<Image
+                        {profile!=null?profile.Profile_Picture!=null?(<Image
                           source={{uri: profile.Profile_Picture}}
                           style={{
                             height: responsiveHeight(3),
@@ -181,8 +197,10 @@ import { set_AddressSlice_AddressList } from '../slices/AddressSlice';
                             borderRadius: 40,
                           }}
                         />):(
-                        <View style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey'}}>
-                        </View>)}
+                          <LinearGradient
+                          colors={[RandomLinearColor1, RandomLinearColor2]} style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey',justifyContent:'center',alignItems:'center'}}>
+                         <Text style={{fontSize:responsiveFontSize(1.5)}}>{profile.user_first_name[0]}</Text>
+                        </LinearGradient>):null}
                         <Text
                           numberOfLines={1}
                           style={{fontSize: responsiveFontSize(1.2), color: Color.headersubtitles,marginVertical:3}}>

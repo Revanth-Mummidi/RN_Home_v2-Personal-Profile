@@ -134,7 +134,7 @@ const Email = () => {
   useEffect(()=>{
    dispatch(setPrimaryEmails(emailList));
    dispatch(setPrimaryMailIndex(primary));
-   addBasicDetails(CurrentProfile.dependent_access_token,{
+   addBasicDetails(CurrentProfile?.access_token,{
     mobileno:'',
     alternate_mobileno:'',
     alternate_email_id:[emailList[!primary]],

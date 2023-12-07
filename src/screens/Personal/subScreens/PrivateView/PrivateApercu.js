@@ -30,6 +30,7 @@ import BMI from '../Edit/BMI';
 import PhoneNumber from '../Edit/PhoneNumber';
 import Email from '../Edit/Email';
 import getStyles from '../../utils/PersonalStyles';
+import LinearGradient from 'react-native-linear-gradient';
 import QRCode from '../Edit/QRCode';
 import Address from '../Edit/Address';
 import { useDispatch, useSelector } from 'react-redux';
@@ -39,6 +40,7 @@ import { useNavigation } from '@react-navigation/native';
 import { ClearAddMembeData, set_AddMember_BloodGroup, set_AddMember_Complete, set_AddMember_DateOfBirth, set_AddMember_FirstName, set_AddMember_Gender, set_AddMember_IsEdit, set_AddMember_LastName } from '../../slices/AddMemberSlice';
 import { parseDateString } from '../../utils/Conversions';
 import { responsiveFontSize, responsiveHeight, useResponsiveHeight } from '../../../../themes/ResponsiveDimensions';
+import getRandomLGColor from '../../../_components/uiStyles/GetRandomLGColors';
 // import { Modal } from 'react-native-paper';
 
 const initialState = {
@@ -67,10 +69,10 @@ const PrivateApercu = ({ imageURL }) => {
   const refScreens = React.useRef(null);
   const  refTabScreens = React.useRef(null);
   const { profileDetails, slider, tabs } = getArr(refScreens);
-  const [image, setImage] = useState(
-    (imageURL = require('../../assets/images/Svante_Paabo_nobelPrizeMedicine.jpeg')),
-  );
-
+  // const [image, setImage] = useState(
+  //   (imageURL = require('../../assets/images/Svante_Paabo_nobelPrizeMedicine.jpeg')),
+  // );
+  const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   const refProfileImage = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [tabselectedIndex, setTabSelectedIndex] = useState(0);
@@ -79,7 +81,7 @@ const PrivateApercu = ({ imageURL }) => {
   const dispatch = useDispatch();
   const CurrentProfile = useSelector(state => state.PersonalReducers.general_states).current_user_profile;
 
-
+  
   // useEffect(() => {
   //   const fetchColors = async () => {
   //     const result = await ImageColors.getColors(image, {
@@ -288,7 +290,10 @@ const PrivateApercu = ({ imageURL }) => {
         <View style={{ flex: 1, backgroundColor: 'rgba(0,0,0,0.9)', justifyContent: 'center', alignItems: 'center' }}>
           <View style={{ ...styles.profileContainer, alignSelf: 'center' }}>
 
-            {CurrentProfile.Profile_Picture!=null?(<Image source={{uri:CurrentProfile.Profile_Picture}} style={styles.Image200} resizeMode={'cover'} />):(<View style={{...styles.Image200,backgroundColor:"grey",justifyContent:"center",alignItems:"center"}}><Text style={{fontSize:responsiveFontSize(10)}}>M</Text></View>)}
+            {CurrentProfile?.Profile_Picture?(<Image source={{uri:CurrentProfile?.Profile_Picture}} style={styles.Image200} resizeMode={'cover'} />):
+            (<LinearGradient
+                          colors={[RandomLinearColor1, RandomLinearColor2]} style={{...styles.Image200,backgroundColor:"grey",justifyContent:"center",alignItems:"center"}}>
+                            <Text style={{fontSize:responsiveFontSize(10)}}>{CurrentProfile?.user_first_name[0]}</Text></LinearGradient>)}
           </View>
         </View>
       </Modal>
@@ -311,13 +316,13 @@ const PrivateApercu = ({ imageURL }) => {
 
       {profileDetails.slice(0, 1).map((item, index) => {
         return (
-          <View key={index} style={{}}>
+          <View key={index} >
             <View
               style={{
                 width: '100%',
                 // position: 'absolute',
                 paddingTop: 55,
-                backgroundColor: color1,
+                backgroundColor:color1,
               }}>
               <View
                 style={{
@@ -351,13 +356,13 @@ const PrivateApercu = ({ imageURL }) => {
                     setProfileImage(true);
                   }}
                   style={styles.profileContainer}>
-                  {CurrentProfile.Profile_Picture!=null?(<Image
+                  {CurrentProfile && CurrentProfile?.Profile_Picture!=null?(<Image
                     // source={image}
-                    source={{uri:CurrentProfile.Profile_Picture}}
+                    source={{uri:CurrentProfile?.Profile_Picture}}
                     style={styles.profileImageBig}
                     resizeMode={'cover'}
-                  />):(<View style={{...styles.profileImageBig,backgroundColor:'grey'}}>
-
+                  />):(<View style={{...styles.profileImageBig,backgroundColor:'grey',justifyContent:'center',alignItems:'center'}}>
+                    <Text style={{fontSize:responsiveFontSize(6)}}>{CurrentProfile?.user_first_name[0]}</Text>
                   </View>)}
                   <Image
                     source={require('../../assets/icons/verify.png')}
@@ -651,7 +656,7 @@ const getArr = (refScreens) => {
       ),
       image: require('../../assets/icons/call.png'),
       refScreens: 'phoneRef',
-      screen: <PhoneNumber />,
+      screen: <PhoneNumber refScreens={refScreens} />,
       isVerfied: true,
     },
     {

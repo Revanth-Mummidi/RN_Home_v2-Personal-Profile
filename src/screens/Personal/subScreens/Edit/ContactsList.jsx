@@ -20,7 +20,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import {getColor} from '../../../../themes/GetColor';
 import { Toast } from '../../../_components';
 import { errorToast } from '../../../_components/toast/toast';
-const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{}}) => {
+const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{},create=true}) => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const [selectedItems, setSelectedItems] = useState(null);
   const [num, setNum] = useState([]);
@@ -199,7 +199,7 @@ const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{}}) => 
       onRequestClose={()=>{
        
         console.log("REF",refer);
-        refer.current.close();
+        // refer.current.close();
         setMod(false);
       }}
       onTouchCancel={()=>{setMod(false)}}
@@ -222,7 +222,7 @@ const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{}}) => 
               <TouchableOpacity
                 onPress={() => {
                   console.log("refer",refer);
-                  refer.current.close();
+                  // refer.current.close();
                   setVisibleContacts(false);
                   setMod(false);
                 }}>
@@ -254,15 +254,17 @@ const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{}}) => 
               // setPhoneNumber(selectedObject.phoneNumbers[0].number);
               // setUserName(selectedObject.displayName);
               // setMod(false);
+              if(create){
               refer.current.open();
               setPhoneNumber('');
               setUserName('');
               setMod(false);
+              }
             }}>
 
             <View style={{flexDirection:'row',justifyContent:'flex-end',alignItems:'center',backgroundColor:Color.badge_bg,
             borderRadius:13,
-            padding:10,margin:10,opacity:!isSelected?1:0}}>
+            padding:10,margin:10,opacity:!isSelected && create ?1:0}}>
           
               <Text>Create</Text>
    

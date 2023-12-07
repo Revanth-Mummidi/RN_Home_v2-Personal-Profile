@@ -89,40 +89,68 @@ catch(err){
 }
 };
 
-export const accessDependent = async (queryParamsArray) => {
-  try {
-  const authToken = await getApiKey()
-  // const authToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
+// export const accessDependent = async (queryParamsArray) => {
+//   try {
+//   const authToken = await getApiKey()
+//   // const authToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
 
-  const body = {};
-  const ApiUrl = Base_URLs.AccessDependent_URL;
+//   const body = {};
+//   const ApiUrl = Base_URLs.AccessDependent_URL;
 
  
-    const results = [];
+//     const results = [];
 
-    for (const queryParams of queryParamsArray) {
-      const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+//     for (const queryParams of queryParamsArray) {
+//       const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
 
+//       const response = await HomeAPI({
+//         method: 'POST',
+//         url: fullUrl,
+//         data: body,
+//         headers: {
+//           Authorization: `Bearer ${authToken}`,
+//         },
+//       });
+
+//       results.push(response.data);
+//     }
+
+//     // console.log('Results:', results);
+
+//     return results;
+//   } catch (error) {
+//     console.error('Error in accessDependent:', error);
+//     throw error;
+//   }
+// };
+
+export const getDependentUsers=async(authTokenArray)=>{
+  try{
+    const ApiURl=Base_URLs.FetchProfile_URL;
+      const body={};
+      console.log("ARRAY=",authTokenArray);
+      let resultArray=[];
+    for(const authToken of authTokenArray){
+      console.log("AUTHTOKEN IN GET",authToken);
       const response = await HomeAPI({
-        method: 'POST',
-        url: fullUrl,
-        data: body,
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-
-      results.push(response.data);
+                method: 'POST',
+                url: ApiURl,
+                data: body,
+                headers: {
+                  Authorization: `Bearer ${authToken.authToken}`,
+                },
+              });
+          resultArray.push(response.data);
+          console.log("DATA IN ARRAY=",response.data.user_first_name);
     }
-
-    // console.log('Results:', results);
-
-    return results;
-  } catch (error) {
-    console.error('Error in accessDependent:', error);
-    throw error;
+    console.log("RESULT ARRAY IN GET",resultArray);
+    return resultArray;
   }
-};
+  catch(err){
+    console.log("ERROR IN GET DEPENDENT USERS =",err);
+    throw err;
+  }
+}
 
 export const getMainProfile = async () => {
   try{
@@ -383,3 +411,39 @@ export const FetchEmergencyContacts=async(authToken)=>{
     throw err;
   }
 }
+
+export const DeleteAddressItem=async(authToken,addressID)=>{
+  console.log("ADDRESS ID ",addressID);
+  try{
+    if(authToken==undefined){
+      authToken=await getApiKey();
+    }
+    const ApiUrl=Base_URLs.DeleteAddress_URL;
+    // const fullUrl = `${ApiUrl}?${new URLSearchParams(params).toString()}`;
+    return await HomeAPI({
+      method: 'POST',
+      url: ApiUrl,
+      data:{address_id_list:[addressID]},
+      headers:{
+        Authorization:`Bearer ${authToken}`
+      }
+    }).then(res => {
+      console.log("FETCHED EMERGENCY CONTACTS=",res.data);
+ 
+      return res.data;
+    });
+  }
+  catch(err){
+    console.log("ERROR IN DELETE ADDRESS",err);
+    throw err;
+  }
+}
+
+// export const EditAddressItem=async(authToken,queryParams)=>{
+//   try{
+
+//   }
+//   catch(err){
+//     console.log("ERROR IN EDIT ADDRESS",err)
+//   }
+// }

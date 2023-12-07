@@ -14,6 +14,8 @@ const FeedFlatlist = ({data}) => {
   const renderItem = ({item, index}) => {
     return (
       <Product
+      key={index}
+      
         // key={index}
         item={item}
         onPress={() => setSelectedId(item.id)}

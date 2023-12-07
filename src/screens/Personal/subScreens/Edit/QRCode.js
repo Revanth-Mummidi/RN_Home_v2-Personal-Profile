@@ -12,29 +12,6 @@ const QRCode = () => {
     state => state.PersonalReducers.general_states,
   ).current_user_profile;
   const styles = getStyles();
-  // let url1='';
-  const getURL = async () => {
-    try {
-      const url1 = await getQRCode(CurrentProfile.dependent_access_token, {
-        file_name: CurrentProfile.qr_code_url,
-      });
-      console.log('URL UDAY=', url1);
-      setQR(url1);
-      // return url1;
-    } catch (err) {
-      console.log('ERROR IN GET URL', err);
-    }
-  };
-  useEffect(() => {
-    //  setQR(getURL());
-    const fun=async()=>{
-     await getURL();
-    }
-    fun();
-    console.log("URL QR=",qr);
-
-  }, []);
-  const [qr, setQR] = useState('');
   const Color = getColor(useSelector(state => state.theme.theme));
   return (
     <View style={{...styles.parentWidth}}>
@@ -54,10 +31,10 @@ const QRCode = () => {
         <Text>QRCode area </Text>
       </View> */}
       <View style={{justifyContent: 'center', alignItems: 'center'}}>
-        {qr ? (
+        {CurrentProfile.qr_code_url!='' ? (
           <Image
             source={{
-              uri: qr,
+              uri: CurrentProfile.qr_code_url,
             }}
             style={{
               height: responsiveHeight(40),

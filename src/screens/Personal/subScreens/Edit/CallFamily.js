@@ -22,6 +22,9 @@ import CountryCode from '../../../Login/components/CountyCodePicker';
 import ContactsList from './ContactsList';
 import { setUserName } from '../../../../utils/LocalStorage';
 import { FetchEmergencyContacts, addEmergencyContacts } from '../../utils/PersonalServerRequests';
+
+import LinearGradient from 'react-native-linear-gradient';
+import getRandomLGColor from '../../../_components/uiStyles/GetRandomLGColors';
 //changed
 const CallFamily = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
@@ -42,6 +45,7 @@ const CallFamily = () => {
   const refCC = useRef(null);
   const [count,setCount]=useState(0);
   const [ContactList,setContactList]=useState([]);
+  const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   const refAddFamily = React.useRef(null);
   // useEffect(()=>{
   //  setCount(1);
@@ -53,6 +57,11 @@ const CallFamily = () => {
   //     refAddFamily.current.close();
   //   }
   // },[mod]);
+  const fetchContacts=async()=>{
+    const arr=await FetchEmergencyContacts(CurrentProfile.dependant_access_token);
+    setContactList(arr.data);
+    console.log("EMERGENCY CONTACTS=",arr.data);
+  }
   useEffect(()=>{
     let arr=[0,0,0],brr=[0,0,0];
     if(userName=='')
@@ -98,10 +107,7 @@ const CallFamily = () => {
     settemparr(arr);
   },[phoneNumber,relation,userName]);
   useEffect(()=>{
-    const fetchContacts=async()=>{
-      const arr=await FetchEmergencyContacts(CurrentProfile.dependant_access_token);
-      setContactList(arr);
-    }
+
     fetchContacts();
   },[]);
   function fetchPhoneNumber(enteredNumber) {
@@ -109,6 +115,7 @@ const CallFamily = () => {
   }
 
   const renderDoctorData = (data, index) => {
+    console.log("DATA=",data);
     return (
       <Pressable
         style={{
@@ -117,13 +124,16 @@ const CallFamily = () => {
           width: 80,
           marginHorizontal: 2,
         }}
-        key={index}>
-        <Image style={styles.image46} source={{uri: data?.source}} />
+      >
+        {/* <Image style={styles.image46} source={{uri: data?.source}} /> */}
+        <LinearGradient style={{...styles.image46,justifyContent:'center',alignItems:'center'}} colors={[RandomLinearColor1,RandomLinearColor2]}>
+          <Text>{data.contact_name[0]}</Text>
+          </LinearGradient>
         <Text numberOfLines={1} style={styles.text14}>
-          {data?.name || 'Family'}
+          {data.contact_name || 'Family'}
         </Text>
         <Text numberOfLines={1} style={styles.text11}>
-          {data?.relation || 'Specialist'}
+          {data.relation || 'Specialist'}
         </Text>
       </Pressable>
     );
@@ -148,15 +158,14 @@ const CallFamily = () => {
       phoneNumber:phoneNumber,
       relation:relation
     };
-     setMyPhoneNumbers(phoneList => [...phoneList, param]);
-    // console.log("MY PHONE NUMBERS",myPhoneNumbers);
+   setMyPhoneNumbers(phoneList => [...phoneList, param]);
+    await addEmergencyContacts(CurrentProfile.dependant_access_token,param);
+    refAddFamily.current.close();
+    await fetchContacts();
     setPhoneNumber('');
     setRelation('');
     setUserName('');
     // setDpn('');
-  
-    await addEmergencyContacts(CurrentProfile.dependant_access_token,param);
-    refAddFamily.current.close();
   }
   else
   {
@@ -291,8 +300,8 @@ const CallFamily = () => {
           }}
           showsHorizontalScrollIndicator={false}
           horizontal={true}
-          key={'flat list'}
-          data={emergencyFriends || []}
+          // key={'flat list'}
+          data={ContactList || []}
           renderItem={({item, index}) => renderDoctorData(item, index)}
           keyExtractor={item => item.id}
         />

@@ -2,7 +2,7 @@
 /* eslint-disable react-native/no-inline-styles */
 import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {DualButton, TextInputFields} from '../../../_components';
+import {DualButton, HandleBottomSheet, MediaWrapper, TextInputFields} from '../../../_components';
 import styles from '../../utils/PersonalStyles';
 import {Strings} from '../../../../themes';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -13,9 +13,13 @@ import {getColor} from '../../../../themes/GetColor';
 import getStyles from '../../utils/PersonalStyles';
 import {
   Clear_AddressSlice,
+  set_AddressSlice_AddressID,
   set_AddressSlice_AddressList,
   set_AddressSlice_Country,
   set_AddressSlice_DoorNumber,
+  set_AddressSlice_IsEdit,
+  set_AddressSlice_IsPrimary,
+  set_AddressSlice_SelectedInd,
   set_AddressSlice_address,
   set_AddressSlice_city,
   set_AddressSlice_custom_title,
@@ -34,44 +38,107 @@ import {
 } from '../../../../themes/ResponsiveDimensions';
 import {useNavigation} from '@react-navigation/native';
 import {getLocation} from '../../../Home/utils/Permissions';
-import { createAddress } from '../../utils/PersonalServerRequests';
+import {
+  DeleteAddressItem,
+  createAddress,
+} from '../../utils/PersonalServerRequests';
 //changed
 const Address = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
-  const AddressList=useSelector(state=>state.PersonalReducers.add_address).address_list;
-  const [addAddress, setAddAddress] = useState(false);
-  const CurrentProfile = useSelector(
-    state => state.PersonalReducers.general_states,
-  ).current_user_profile;
-  const activeColor = Color.WHITE;
-  const inActiveColor = Color.mildBlue;
+  const AddressList = useSelector(
+    state => state.PersonalReducers.add_address,
+  ).address_list;
 
+  const [addAddress, setAddAddress] = useState(false);
   const [addressData, setAddressData] = useState(AddressList);
   const [isEdit, setEdit] = useState(false);
-  const [latitude, setLatitude] = useState();
-  const [longitude, setLongitude] = useState();
-  const [primary,setPrimary]=useState(0);
+  const refAttachments = React.useRef(null);
+  const initialBottomSheet = () => {
+    refAttachments.current.open();
+  };
+  const finalBottomSheet = () => {
+    refAttachments.current.close();
+  };
   // const addressData=useSelector(state=>state.PersonalReducers.add_address).address_list;
   const dispatch = useDispatch();
   const navigation = useNavigation();
+
+  // ADD ADDRESS
   const AddAddress = () => {
-    const [addressCategory, setAddressCategory] = useState('home');
+    const CurrentProfile = useSelector(
+      state => state.PersonalReducers.general_states,
+    ).current_user_profile;
+    const activeColor = Color.mildBlue;
+    const inActiveColor = Color.WHITE;
+    const Photo = useSelector(state => state.image.uri);
+    // console.log(PHOTO,"fromth eaddress");
     const obj = useSelector(state => state.PersonalReducers.add_address);
+    // const [object,setObject]=useState({
+    //   address:'',
+    //   city:'',
+    //   country:'',
+    //   custom_title:'',
+    //   district:'',
+    //   door_no:'',
+    //   id:'',
+    //   images:[],
+    //   landmark:'',
+    //   latitude:'',
+    //   longitude:'',
+    //   pin_code:'',
+    //   state:'',
+    //   type:0,
+    //   verify:false
+    // });
+    const [images,setImages]=useState([]);
+    const object = isEdit
+      ? obj.address_list[obj.selected_ind]
+      : {
+          address: '',
+          city: '',
+          country: '',
+          custom_title: '',
+          district: '',
+          door_no: '',
+          id: '',
+          images: [],
+          landmark: '',
+          latitude: '',
+          longitude: '',
+          pin_code: '',
+          state: '',
+          type: 0,
+          verify: false,
+        };
+
+
+    useEffect(()=>{
+      let arr=images;
+      arr.push(Photo);
+      setImages(arr);
+      console.log("Images =",images);
+      console.log("PHOTOTS",Photo);
+    },[Photo]);
+    const [addressCategory, setAddressCategory] = useState(
+      object.type == 'home' ? 1 : 0,
+    );
     const [errorArray, setErrorArray] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
     const [showError, setShowError] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
-    const [state, setState] = useState('');
-    const [district, setDistrict] = useState('');
-    const [country, setCountry] = useState('');
-    const [city, setCity] = useState('');
-    const [pinCode, setPinCode] = useState('');
-    useEffect(() => {
-      dispatch(set_AddressSlice_Country(country));
-      dispatch(set_AddressSlice_city(city));
-      dispatch(set_AddressSlice_district(district));
-      dispatch(set_AddressSlice_state(state));
-      dispatch(set_pin_number(pinCode));
-    }, [state, country, district, city, pinCode]);
+    const [state, setState] = useState(object.state);
+    const [district, setDistrict] = useState(object.district);
+
+    const [country, setCountry] = useState(object.country);
+    const [title, setTitle] = useState(object.custom_title);
+    const [city, setCity] = useState(object.city);
+    const [pinCode, setPinCode] = useState(object.pin_code);
+    const [dno, setDno] = useState(object.door_no);
+    const [latitude, setLatitude] = useState(object.latitude);
+    const [landmark, setLandmark] = useState(object.landmark);
+    const [longitude, setLongitude] = useState(object.longitude);
+    const [primary, setPrimary] = useState(object.verify ? 1 : 0);
+    const [editID, setEditID] = useState(object.id);
+
     const GetFromPinCode = async pincode => {
       const pin = parseInt(pincode);
       try {
@@ -89,7 +156,7 @@ const Address = () => {
         setCountry(ob.Country);
         setDistrict(ob.District);
         setCity(ob.Name);
-        console.log(ob.State, ob.Country, ob.District, ob.Name,);
+        console.log(ob.State, ob.Country, ob.District, ob.Name);
       } catch (err) {
         console.log(err);
       }
@@ -136,58 +203,110 @@ const Address = () => {
       // console.log('ARRAY=', arr, 'val', value, 'ind', index);
       setErrorArray(arr);
     };
-    useEffect(() => {
-      dispatch(set_AddressSlice_type(addressCategory));
-    }, [addressCategory]);
-    const handleSave = async (addressObj) => {
-      try{
-      // const addressObj=useSelector(state=>state.PersonalReducers.add_address);
-      console.log('ADD=', addressObj);
-      const tempObj = {
-        id: 1,
-        nickname: addressObj.custom_title,
-        type: addressObj.type,
-        address: `${
-          addressObj.door_number != '' ? addressObj.door_number : ''
-        }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
-          addressObj.city != '' ? ',' + addressObj.city : ''
-        }${addressObj.district != '' ? ',' + addressObj.district : ''}${
-          addressObj.state != '' ? ',' + addressObj.state : ''
-        }${addressObj.country != '' ? ',' + addressObj.country : ''}${
-          addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
-        }`,
+    // useEffect(() => {
+    //   dispatch(set_AddressSlice_type(addressCategory==1?'Home':'Office'));
+    // }, [addressCategory]);
+    const handleSave = async () => {
+      const addressObj = obj;
+      console.log('OBJ=', addressObj);
+      try {
+        console.log('ADD=', addressObj);
+        const tempObj = {
+          id: 1,
+          nickname: addressObj.custom_title,
+          type: addressObj.type,
+          address: `${
+            addressObj.door_number != '' ? addressObj.door_number : ''
+          }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
+            addressObj.city != '' ? ',' + addressObj.city : ''
+          }${addressObj.district != '' ? ',' + addressObj.district : ''}${
+            addressObj.state != '' ? ',' + addressObj.state : ''
+          }${addressObj.country != '' ? ',' + addressObj.country : ''}${
+            addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
+          }`,
 
-        verify: true,
-        images: [],
-      };
-      const bodyData = {
-        address_list:[{
-        address_image: '',
-        address_id: '',
-        address_type: addressObj.type,
-        custom_title: addressObj.custom_title,
-        address:addressObj.door_number ,
-        pin_code: addressObj.pin_number,
-        city: addressObj.city,
-        district:addressObj.district,
-        state:addressObj.state,
-        country:addressObj.country,
-        landmark:addressObj.landmark,
-        longitude:addressObj.longitude ,
-        latitude:addressObj.latitude,
-        is_primary: '',
-        }]
-      };
-       const res=await createAddress(CurrentProfile.dependent_access_token,bodyData);
-       console.log(res.data[0])
-      let arr = [...addressData, tempObj];
-      setAddressData(arr);
-      dispatch(set_AddressSlice_AddressList(arr));
-      }catch(err){
-      console.log("handleSaveErr",err)
-    }
+          verify: addressObj.isPrimary,
+          images: [],
+        };
+        const bodyData = {
+          address_list: [
+            {
+              address_image: '',
+              address_id: '',
+              address_type: addressObj.type,
+              custom_title: addressObj.custom_title,
+              address: addressObj.door_number,
+              pin_code: addressObj.pin_number,
+              city: addressObj.city,
+              district: addressObj.district,
+              state: addressObj.state,
+              country: addressObj.country,
+              landmark: addressObj.landmark,
+              longitude: addressObj.longitude,
+              latitude: addressObj.latitude,
+              is_primary: addressObj.isPrimary,
+            },
+          ],
+        };
+        const res = await createAddress(CurrentProfile.access_token, bodyData);
+        console.log(res.data[0]);
+        let arr = [...addressData, tempObj];
+        setAddressData(arr);
+        dispatch(set_AddressSlice_AddressList(arr));
+      } catch (err) {
+        console.log('handleSaveErr', err);
+      }
     };
-
+    const handleEdit = async () => {
+      try {
+          const addressObj = obj;
+          console.log('ADD=', addressObj);
+          const tempObj = {
+            id: 1,
+            nickname: addressObj.custom_title,
+            type: addressObj.type,
+            address: `${
+              addressObj.door_number != '' ? addressObj.door_number : ''
+            }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
+              addressObj.city != '' ? ',' + addressObj.city : ''
+            }${addressObj.district != '' ? ',' + addressObj.district : ''}${
+              addressObj.state != '' ? ',' + addressObj.state : ''
+            }${addressObj.country != '' ? ',' + addressObj.country : ''}${
+              addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
+            }`,
+  
+            verify: addressObj.isPrimary,
+            images: [],
+          };
+          const bodyData = {
+            address_list: [
+              {
+                address_image: '',
+                address_id: '',
+                address_type: addressObj.type,
+                custom_title: addressObj.custom_title,
+                address: addressObj.door_number,
+                pin_code: addressObj.pin_number,
+                city: addressObj.city,
+                district: addressObj.district,
+                state: addressObj.state,
+                country: addressObj.country,
+                landmark: addressObj.landmark,
+                longitude: addressObj.longitude,
+                latitude: addressObj.latitude,
+                is_primary: addressObj.isPrimary,
+              },
+            ],
+          };
+          const res = await createAddress(CurrentProfile.access_token, bodyData);
+          console.log(res.data[0]);
+          let arr = [...addressData, tempObj];
+          setAddressData(arr);
+          // dispatch(set_AddressSlice_AddressList(arr));
+      } catch (err) {
+        console.log('ERROR WHILE EDITING ADDRESS', err);
+      }
+    };
     const GetLocation = async () => {
       console.log('Pressed');
       try {
@@ -195,11 +314,36 @@ const Address = () => {
         console.log('Location:', location);
         setLatitude(location.latitude);
         setLongitude(location.longitude);
+
         // Do something with the location, e.g., update state, make an API call, etc.
       } catch (error) {
         console.error('Error fetching location:', error);
       }
     };
+
+    const setDispatchValues = () => {
+      dispatch(set_AddressSlice_Country(country));
+      dispatch(set_AddressSlice_DoorNumber(dno));
+      dispatch(set_AddressSlice_city(city));
+      dispatch(set_AddressSlice_custom_title(title));
+      dispatch(set_AddressSlice_district(district));
+      dispatch(set_AddressSlice_landmark(landmark));
+      dispatch(set_AddressSlice_latitude(latitude));
+      dispatch(set_AddressSlice_longitude(longitude));
+      dispatch(set_AddressSlice_state(state));
+      dispatch(set_AddressSlice_IsPrimary(primary));
+      dispatch(set_AddressSlice_type(addressCategory ? 'home' : 'office'));
+    };
+
+    const handleDelete = async () => {
+      try {
+        await DeleteAddressItem(CurrentProfile.access_token, object.id);
+      } catch (err) {
+        console.log('ERROR while del add', err);
+        throw err;
+      }
+    };
+
     return (
       <View>
         <LinearGradient
@@ -212,7 +356,8 @@ const Address = () => {
           }}>
           <Pressable
             onPress={() => {
-              setAddressCategory('office');
+              setAddressCategory(0);
+              console.log(addressCategory);
             }}
             style={{
               width: '40%',
@@ -225,16 +370,12 @@ const Address = () => {
               source={require('../../assets/icons/building.png')}
               style={{
                 ...styles.mediumIcon,
-                tintColor: !(addressCategory === 'office')
-                  ? activeColor
-                  : inActiveColor,
+                tintColor: addressCategory == 0 ? activeColor : inActiveColor,
               }}
             />
             <Text
               style={{
-                color: !(addressCategory === 'office')
-                  ? activeColor
-                  : inActiveColor,
+                color: addressCategory == 0 ? activeColor : inActiveColor,
                 fontWeight: '700',
                 fontSize: 17,
                 paddingLeft: 10,
@@ -244,7 +385,7 @@ const Address = () => {
           </Pressable>
           <Pressable
             onPress={() => {
-              setAddressCategory('home');
+              setAddressCategory(1);
             }}
             style={{
               width: '40%',
@@ -257,15 +398,13 @@ const Address = () => {
               source={require('../../assets/icons/building-3.png')}
               style={{
                 ...styles.mediumIcon,
-                tintColor:
-                  addressCategory === 'office' ? activeColor : inActiveColor,
+                tintColor: addressCategory == 1 ? activeColor : inActiveColor,
               }}
             />
             <Text
               style={{
                 ...styles.heading17,
-                color:
-                  addressCategory === 'office' ? activeColor : inActiveColor,
+                color: addressCategory == 1 ? activeColor : inActiveColor,
                 paddingLeft: 10,
               }}>
               Home
@@ -286,9 +425,11 @@ const Address = () => {
                   setArrActive(0, 0);
                 }
               }
-              dispatch(set_AddressSlice_custom_title(e));
+              setTitle(e);
+              // dispatch(set_AddressSlice_custom_title(e));
             }}
             error={showError[0] ? "This field should'nt be empty" : ''}
+            value={title}
           />
         </View>
         {/* GPS Location  */}
@@ -332,7 +473,7 @@ const Address = () => {
                 label={'Latitude'}
                 onChange={e => {
                   setLatitude(e);
-                  dispatch(set_AddressSlice_latitude(e));
+                  // dispatch(set_AddressSlice_latitude(e));
                 }}
                 value={latitude}
               />
@@ -343,7 +484,7 @@ const Address = () => {
                 label={'Longitude'}
                 onChange={e => {
                   setLongitude(e);
-                  dispatch(set_AddressSlice_longitude(e));
+                  // dispatch(set_AddressSlice_longitude(e));
                 }}
                 value={longitude}
               />
@@ -357,7 +498,7 @@ const Address = () => {
             //  value={addressData}
             onChange={e => {
               // console.log(e);
-              dispatch(set_AddressSlice_DoorNumber(e));
+              // dispatch(set_AddressSlice_DoorNumber(e));
               if (e != '') {
                 if (errorArray[1] == 0) {
                   setArrActive(1, 1);
@@ -369,7 +510,9 @@ const Address = () => {
                   // setShowArrActive(0,0);
                 }
               }
+              setDno(e);
             }}
+            value={dno}
             error={showError[1] ? "This field should'nt be empty" : ''}
           />
         </View>
@@ -401,7 +544,7 @@ const Address = () => {
                     }
                   });
                   setShowError(arr);
-                  dispatch(set_pin_number(e));
+                  // dispatch(set_pin_number(e));
                 }
                 if (e != '') {
                   if (errorArray[2] == 0) {
@@ -424,7 +567,7 @@ const Address = () => {
               value={city}
               onChange={e => {
                 setCity(e);
-                dispatch(set_AddressSlice_city(e));
+                // dispatch(set_AddressSlice_city(e));
                 if (e != '') {
                   if (errorArray[3] == 0) {
                     setArrActive(1, 3);
@@ -448,7 +591,7 @@ const Address = () => {
               value={district}
               onChange={e => {
                 setDistrict(e);
-                dispatch(set_AddressSlice_district(e));
+                // dispatch(set_AddressSlice_district(e));
                 if (e != '') {
                   if (errorArray[4] == 0) {
                     setArrActive(1, 4);
@@ -470,7 +613,7 @@ const Address = () => {
               onChange={e => {
                 // console.log(e);
                 setState(e);
-                dispatch(set_AddressSlice_state(e));
+                // dispatch(set_AddressSlice_state(e));
                 if (e != '') {
                   if (errorArray[5] == 0) {
                     setArrActive(1, 5);
@@ -494,7 +637,7 @@ const Address = () => {
               onChange={e => {
                 console.log(e);
                 setCountry(e);
-                dispatch(set_AddressSlice_Country(e));
+                // dispatch(set_AddressSlice_Country(e));
                 if (e != '') {
                   if (errorArray[6] == 0) {
                     setArrActive(1, 6);
@@ -512,9 +655,11 @@ const Address = () => {
           <View style={{width: '49%'}}>
             <TextInputFields
               label={'Landmark '}
+              value={landmark}
               onChange={e => {
                 console.log(e);
-                dispatch(set_AddressSlice_landmark(e));
+                setLandmark(e);
+
                 // if (e != '') {
                 //   if (errorArray[2] == 0) {
                 //     setArrActive(1, 2);
@@ -543,8 +688,14 @@ const Address = () => {
           <ScrollView horizontal>
             <Pressable
               onPress={() => {
-                navigation.navigate('Recording', {mode: 'isProfile'});
-              }}>
+                // navigation.navigate('Recording', {mode: 'isProfile'});
+              
+                  initialBottomSheet();
+                //  navigation.navigate('Recording',{mode:'isProfile'})
+          
+              }}
+              
+              >
               <View
                 style={{
                   marginBottom: 10,
@@ -569,11 +720,18 @@ const Address = () => {
                 />
               </View>
             </Pressable>
-            <View
+           <View style={{flexDirection:'row'}}>
+            { 
+            images.map((data,index)=>{
+              console.log("Data=",data);
+              if(data && data!=undefined && data!='')
+              return(
+              <View
+              key={index}
               style={{
                 marginBottom: 10,
-                height: responsiveHeight(10),
-                width: responsiveWidth(25),
+                // height: responsiveHeight(10),
+                // width: responsiveWidth(25),
                 borderRadius: 10,
                 borderWidth: 2,
                 borderColor: 'grey',
@@ -581,64 +739,91 @@ const Address = () => {
                 justifyContent: 'center',
                 alignItems: 'center',
                 marginRight: 10,
-              }}></View>
-            <View
-              style={{
-                marginBottom: 10,
+              }}>
+             <Image
+               source={{uri:data}}
+               style={{
                 height: responsiveHeight(10),
                 width: responsiveWidth(25),
-                borderRadius: 10,
-                borderWidth: 2,
-                borderColor: 'grey',
-                borderStyle: 'dashed',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 10,
-              }}></View>
-            <View
-              style={{
-                marginBottom: 10,
-                height: responsiveHeight(10),
-                width: responsiveWidth(25),
-                borderRadius: 10,
-                borderWidth: 2,
-                borderColor: 'grey',
-                borderStyle: 'dashed',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 10,
-              }}></View>
+               
+               }}
+             />
+              </View>
+              )
+            })
+           }
+           </View>
           </ScrollView>
         </View>
-        <Pressable
-          onPress={() => {
-            setArrActive(1, 7);
-            let c = 0,
-              arr = errorArray,
-              arr2;
-            arr2 = arr.map((data, index) => {
-              if (data == 0) {
-                c = 1;
-                return 1;
-              } else {
-                return 0;
-              }
-            });
-            let arr1 = showError;
-            arr1.map((data, index) => {
-              if (data == 1) {
-                c = 1;
-              }
-            });
-            setShowError(arr2);
-            if (c == 0) {
+        <View style={{marginTop:10,justifyContent:'center'}}>
+          <Text style={{color:Color.white}}>Are you currently living in this address?</Text>
+          <View style={{flexDirection:'row',padding:10,marginHorizontal:20,margin:5}}>
+            <Pressable onPress={()=>{
+               setPrimary(1);
+            }}>
+            <Text style={{backgroundColor:primary?Color.badge_bg:Color.textfieldContainer,borderRadius:50,padding:10,marginHorizontal:20}}>Yes</Text>
+            </Pressable>
+            <Pressable onPress={()=>{
+               setPrimary(0);
+            }}>
+            <Text style={{backgroundColor:!primary?Color.badge_bg:Color.textfieldContainer,borderRadius:50,padding:10,marginLeft:30}}>No</Text>
+            </Pressable>
+          </View>
+        </View>
+        <View
+          style={isEdit?{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            marginVertical: 10,
+          }:null}
+          >
+         {isEdit?( <Pressable
+            style={{justifyContent: 'flex-start'}}
+            onPress={() => {
+              handleDelete();
               setAddAddress(false);
-              handleSave(obj);
-            }
-          }}
-          style={styles.mediumButton}>
-          <Text style={styles.buttonText14}>{Strings.buttonSave}</Text>
-        </Pressable>
+            }}>
+            <View style={{...styles.mediumButton, backgroundColor: Color.red}}>
+              <Text>Delete</Text>
+            </View>
+          </Pressable>):null}
+          <Pressable
+            onPress={() => {
+              setArrActive(1, 7);
+              let c = 0,
+                arr = errorArray,
+                arr2;
+              arr2 = arr.map((data, index) => {
+                if (data == 0) {
+                  c = 1;
+                  return 1;
+                } else {
+                  return 0;
+                }
+              });
+              let arr1 = showError;
+              arr1.map((data, index) => {
+                if (data == 1) {
+                  c = 1;
+                }
+              });
+              setShowError(arr2);
+              if (c == 0) {
+                if (!isEdit) {
+                  handleSave(obj);
+                  setDispatchValues();
+                }
+
+                setAddAddress(false);
+              }
+            }}
+            style={{...styles.mediumButton, justifyContent: 'flex-end'}}>
+            <Text style={styles.buttonText14}>
+              {!isEdit ? Strings.buttonSave : 'Edit'}
+            </Text>
+          </Pressable>
+        </View>
       </View>
     );
   };
@@ -649,13 +834,20 @@ const Address = () => {
         {isEdit ? 'Edit' : ''} Address{'\n'}
         <Text style={styles.subHeading13}>Logistics | Emergency </Text>
       </Text>
-
+      <HandleBottomSheet
+      containerStyle={{height:responsiveHeight(20)}}
+      bottomSheetRef={refAttachments}
+      height={400}
+      content={<MediaWrapper context={'Address'} callback = {finalBottomSheet}/>}
+      draggableIcon={{backgroundColor: 'grey', width: 100}}
+      />
       {!addAddress ? (
         <Pressable
           onPress={() => {
-            setAddAddress(!addAddress);
             setEdit(false);
             dispatch(Clear_AddressSlice());
+
+            setAddAddress(!addAddress);
           }}
           style={{
             position: 'absolute',
@@ -677,13 +869,14 @@ const Address = () => {
         <AddAddress />
       ) : (
         addressData.map((item, index) => (
-          <AddressCard
-            key={index}
-            item={item}
-            index={index}
-            setAddAddress={setAddAddress}
-            setEdit={setEdit}
-          />
+          <View key={index}>
+            <AddressCard
+              item={item}
+              index={index}
+              setAddAddress={setAddAddress}
+              setEdit={setEdit}
+            />
+          </View>
         ))
       )}
     </View>
@@ -694,10 +887,27 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
   const [longView, setLongView] = useState(false);
   console.log('Item=', item);
   const styles = getStyles();
+  const dispatch = useDispatch();
   const Color = getColor(useSelector(state => state.theme.theme));
+  // const setEditValues=(item)=>{
+  //   console.log("BEFORE SAVE=",item);
+  //   dispatch(set_AddressSlice_latitude(item.latitude));
+  //   dispatch(set_AddressSlice_longitude(item.longitude));
+  //   dispatch(set_AddressSlice_Country(item.country));
+  //   dispatch(set_AddressSlice_DoorNumber(item.door_no));
+  //   dispatch(set_AddressSlice_city(item.city));
+  //   dispatch(set_AddressSlice_type(item.type));
+  //   dispatch(set_AddressSlice_state(item.state));
+  //   dispatch(set_AddressSlice_custom_title(item.custom_title));
+  //   dispatch(set_AddressSlice_landmark(item.landmark));
+  //   dispatch(set_AddressSlice_AddressID(item.id));
+  //   dispatch(set_AddressSlice_IsEdit(true));
+  //   dispatch(set_AddressSlice_IsPrimary(item.verify?1:0));
+  // }
+
   return (
     <Pressable
-      key={index}
+      // key={index}
       onPress={() => {
         setLongView(!longView);
       }}
@@ -707,7 +917,7 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
         padding: 10,
         marginTop: 10,
       }}>
-      <Text style={styles.heading17}>{item.nickname}</Text>
+      <Text style={styles.heading17}>{item.custom_title}</Text>
       <Text numberOfLines={1} style={styles.subHeading13}>
         {item.address}
       </Text>
@@ -720,7 +930,7 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
           <View style={{marginRight: 10, width: '13%'}}>
             <Image
               source={
-                item.type === 'home'
+                (item.type === 1)
                   ? require('../../assets/icons/building-3.png')
                   : require('../../assets/icons/building.png')
               }
@@ -752,7 +962,9 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
           </View>
           {longView ? (
             <View style={{width: '77%', justifyContent: 'center'}}>
-              <Text style={{...styles.text14}}>Latitude , Longitude</Text>
+              <Text style={{...styles.text14}}>
+                {item?.latitude} , {item?.longitude}
+              </Text>
             </View>
           ) : null}
         </View>
@@ -762,18 +974,18 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
               marginRight: 10,
               width: '13%',
             }}>
-            <Image
+           {item.verify?( <Image
               source={require('../../assets/icons/tick-circle.png')}
               style={{
                 width: 30,
                 height: 30,
                 tintColor: Color.badge_bg,
               }}
-            />
+            />):null}
           </View>
-          {longView ? (
+          {longView && item.verify ? (
             <View style={{width: '77%', justifyContent: 'center'}}>
-              <Text style={styles.text14}>Default</Text>
+              <Text style={styles.text14}>{'Default'}</Text>
             </View>
           ) : null}
         </View>
@@ -791,6 +1003,8 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
           <Pressable
             onPress={() => {
               setEdit(true);
+              // setEditValues(item);
+              dispatch(set_AddressSlice_SelectedInd(index));
               setAddAddress(true);
             }}
             style={{

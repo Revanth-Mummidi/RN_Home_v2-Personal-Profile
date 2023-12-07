@@ -26,7 +26,7 @@ const Card = ({
   const navigation = useNavigation();
   console.log("key is ",know)
   const [isMuted, setIsMuted] = useState(false);
-  const [pause,setPause] = useState(false);
+  const [pause,setPause] = useState(true);
   const toggleMute = () => {
     setIsMuted(!isMuted);
   };

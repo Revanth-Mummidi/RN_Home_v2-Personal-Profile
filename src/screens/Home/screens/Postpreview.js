@@ -60,7 +60,7 @@ const ImagesComponent = ({ image }) => {
     setTimeout(() => {
       image.splice(imgIndex, 1);
       setSets(!sets);
-      console.log(images)
+      // console.log(images)
     }, 1000);
   };
   if (!image || image.length === 0) {

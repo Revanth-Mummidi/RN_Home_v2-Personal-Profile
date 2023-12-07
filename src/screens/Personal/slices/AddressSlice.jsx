@@ -12,8 +12,10 @@ const initialState = {
   longitude:'',
   country:'',
   type:'',
+  address_id:'',
   isEdit:false,
-  isPrimary:'0',
+  isPrimary:0,
+  selected_ind:0,
   address_list:[],
 };
 
@@ -55,6 +57,9 @@ const AddressSlice = createSlice({
      set_AddressSlice_type(state,action){
         state.type=action.payload;
      },
+     set_AddressSlice_SelectedInd(state,action){
+        state.selected_ind=action.payload;
+     },
      set_AddressSlice_Country(state,action){
         state.country=action.payload;
      },
@@ -64,20 +69,14 @@ const AddressSlice = createSlice({
      set_AddressSlice_IsPrimary(state,action){
       state.isPrimary=action.payload;
      },
+     set_AddressSlice_AddressID(state,action){
+      state.address_id=action.payload;
+     },
      Clear_AddressSlice(state,action){
-        state.door_number='';
-        state.city='';
-        state.custom_title='';
-        state.district='';
-        state.landmark='';
-        state.latitude='';
-        state.longitude='';
-        state.pin_number='';
-        state.state='';
-        state.type='';
-        state.country='';
-        state.isPrimary='0';
-        
+      //   state.address_list=[],
+      //   state.isPrimary=0,
+      // state.door_number
+      state=initialState;
      }
   },
 });
@@ -96,6 +95,8 @@ export const {
   set_AddressSlice_Country,
   set_AddressSlice_IsEdit,
   set_AddressSlice_IsPrimary,
+  set_AddressSlice_AddressID,
+  set_AddressSlice_SelectedInd,
   Clear_AddressSlice,
   set_AddressSlice_AddressList
 } = AddressSlice.actions;

@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   Animated,
   RefreshControl,
-  Modal
+  Modal,
 } from 'react-native';
 import React, {useRef, useState, useCallback} from 'react';
 import {useNavigation} from '@react-navigation/native';
@@ -63,26 +63,46 @@ const LandingPage = () => {
     if (bottomSheetContent === 'comments') {
       return <FeedComments />;
     }
-    if(bottomSheetContent == 'Bookmarks'){
-       return <Saved/>
+    if (bottomSheetContent == 'Bookmarks') {
+      return <Saved />;
     }
   };
 
-  const CustomAlert = ({ visible, onClose, imageSource }) => {
+  const CustomAlert = ({visible, onClose, imageSource}) => {
     return (
-      <Modal transparent visible={visible} animationType='slide' >
-        <View style={{ flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center', }}>
-          <View style={{ backgroundColor: 'white', padding: 20, borderRadius: 10,height:450,width:'100%' }}>
-            <Image source={{uri:imageSource}} style={{ width: 400, height: 400,resizeMode:'contain',borderRadius:20 }} />
-            <TouchableOpacity onPress={onClose} style={{alignItems:"center",top:30}}>
-            <IconIonicons
+      <Modal transparent visible={visible} animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}>
+          <View
+            style={{
+              backgroundColor: 'white',
+              padding: 20,
+              borderRadius: 10,
+              height: 450,
+              width: '100%',
+            }}>
+            <Image
+              source={{uri: imageSource}}
+              style={{
+                width: 400,
+                height: 400,
+                resizeMode: 'contain',
+                borderRadius: 20,
+              }}
+            />
+            <TouchableOpacity
+              onPress={onClose}
+              style={{alignItems: 'center', top: 30}}>
+              <IconIonicons
                 name="arrow-back-circle"
                 size={50}
-                color= '#DFDFDF'
-            />
+                color="#DFDFDF"
+              />
             </TouchableOpacity>
           </View>
         </View>
@@ -91,7 +111,7 @@ const LandingPage = () => {
   };
 
   const [isAlertVisible, setAlertVisible] = useState(false);
-  const [iurl,setIurl] = useState('');
+  const [iurl, setIurl] = useState('');
   const showAlert = () => {
     setAlertVisible(true);
   };
@@ -105,15 +125,14 @@ const LandingPage = () => {
       <Feed
         item={item}
         onPress={() => setSelectedId(item.id)}
-        onPressProfileImage={()=>{
-          const urlss = item.profileImage
-          const names = item.title
-          navigation.navigate('Status',{
-                    urlss,
-                    names
-          })
-        }
-        }
+        onPressProfileImage={() => {
+          const urlss = item.profileImage;
+          const names = item.title;
+          navigation.navigate('Status', {
+            urlss,
+            names,
+          });
+        }}
         onPressShare={() => {
           setSelectedId(item.id);
           setBottomSheetContent('share');
@@ -124,13 +143,12 @@ const LandingPage = () => {
           setBottomSheetContent('comments');
           initialBottomSheet();
         }}
-        onPressBookmark={()=>{
+        onPressBookmark={() => {
           setSelectedId(item.id);
           setBottomSheetContent('Bookmarks');
           initialBottomSheet();
         }}
       />
-      
     );
   };
 
@@ -171,7 +189,6 @@ const LandingPage = () => {
     <View>
       <AppHeader
         title={'L'}
-       
         user={selectedId}
         onPressIcon={id => {
           setSelectedId(id);
@@ -235,7 +252,6 @@ const LandingPage = () => {
         onClose={hideAlert}
         imageSource={iurl}
       />
-       
     </View>
   );
 };

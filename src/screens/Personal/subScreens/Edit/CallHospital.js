@@ -112,7 +112,7 @@ const CallHospital = () => {
             }}
             showsHorizontalScrollIndicator={false}
             horizontal={true}
-            key={'flat list'}
+            // key={'flat list'}
             data={emergencyFriends || []}
             renderItem={({item, index}) => renderDoctorData(item, index)}
             keyExtractor={item => item.id}
