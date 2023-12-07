@@ -22,14 +22,15 @@ const DefaultCamera = () => {
             console.log(res,"FROM THE DEFAULT CAMERA");
             if(context == 'Address'){
                 console.log('GOback') 
-                return res.assets[0].uri;
+                dispatch(setImageURI(res.assets[0].uri));
+                // return res.assets[0].uri;
                
             }
          }
     }
     useEffect(()=>{
-        const resp=Imgdata();;
-        dispatch(setImageURI(resp));
+       Imgdata()
+       
     },[]);
 
     if(context == 'Address'){

@@ -44,9 +44,9 @@ export default function AppHeader({
   const list = isProfessional ? professional : profile;
   const [selectedItem,setSelectedItem]=useState(CurrentProfile);
   const [current, setCurrent] = useState(list[user]);
-  // useEffect(() => {
-  //   console.log("IN APP HEADER",dependentUsers);
-  // }, []);
+  useEffect(() => {
+    console.log("IN APP HEADER");
+  }, []);
  const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   return (
     <>
