@@ -4,7 +4,7 @@ import { selectImageFromCamera } from '../../Home/utils/Permissions';
 import { useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { setImageURI } from '../../../redux/slices/ProfilePicSlice';
-
+import { convertImageToBase64 } from '../../Home/subScreens/home/Preview';
 const DefaultCamera = () => {
     const dispatch = useDispatch();
     const context = useSelector(state => state.screen.uri);
@@ -17,22 +17,21 @@ const DefaultCamera = () => {
             if(context != 'Address'){
             navigation.goBack();
             }
-            
-            console.log(res);
+            return '';
          }else{
             console.log(res,"FROM THE DEFAULT CAMERA");
-            if(context == 'Address'){
-                console.log('GOback') 
-                
-                return res.assets[0].uri;
-               
+            if(context == 'Address'||context == 'isProfile'){
+                const base64=await convertImageToBase64(res.assets[0].uri)
+                dispatch(setImageURI(base64));
+                console.log('GOback',res.assets[0].uri) 
             }
          }
     }
     useEffect(()=>{
-        let a=Imgdata();
-        dispatch(setImageURI(a)); 
-       
+        // let a=Imgdata();
+        // if(a!='')
+        // dispatch(setImageURI(a)); 
+        Imgdata();
     },[]);
 
     if(context == 'Address'){

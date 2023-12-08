@@ -129,25 +129,24 @@ const togglePause=()=>{
   );
 }
 
+export const convertImageToBase64 = async (imageUri) => {
+  try {
+    // Read the image file using react-native-fs
+    console.log("convert.....",imageUri)
+     const base64String = await RNFS.readFile(imageUri, 'base64');
+    // Convert the image content to a base64 string using base64-js
+    // console.log(base64String)
+    // const base64String = Base64.encode(imageContent);
+    return base64String;
+  } catch (error) {
+    console.error('Error converting image to base64:', error);
+    return null;
+  }
+};
+
 const ImagePreview = ({ route, navigation }) => {
   const { imageUri,setPhotoCapture,mode } = route.params;
    const dispatch = useDispatch();
-  const convertImageToBase64 = async (imageUri) => {
-    try {
-      // Read the image file using react-native-fs
-       const base64String = await RNFS.readFile(imageUri, 'base64');
-      // Convert the image content to a base64 string using base64-js
-      // console.log(base64String)
-      // const base64String = Base64.encode(imageContent);
-  
-      return base64String;
-    } catch (error) {
-      console.error('Error converting image to base64:', error);
-      return null;
-    }
-  };
-
-
   const uploadPhotoToS3 = async (imageUri) => {
     try {
       const apiURL = Base_URLs.Upload_File_URL;
@@ -220,9 +219,9 @@ const ImagePreview = ({ route, navigation }) => {
   const saveImageToCameraRoll = async () => {
     try {
       if(mode == 'isProfile'){
-        dispatch(setImageURI(imageUri));
         const base64Image = await convertImageToBase64(imageUri);
-        console.log(base64Image);
+        dispatch(setImageURI(base64Image));
+        // console.log(base64Image);
         navigation.pop();
         navigation.pop();
         return;

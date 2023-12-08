@@ -89,40 +89,42 @@ catch(err){
 }
 };
 
-// export const accessDependent = async (queryParamsArray) => {
-//   try {
-//   const authToken = await getApiKey()
-//   // const authToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
+export const accessDependent = async (queryParamsArray) => {
+  try {
+  const authToken = await getApiKey()
+  // const authToken = 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
 
-//   const body = {};
-//   const ApiUrl = Base_URLs.AccessDependent_URL;
+  const body = {};
+  const ApiUrl = Base_URLs.AccessDependent_URL;
 
  
-//     const results = [];
+    const results = [];
 
-//     for (const queryParams of queryParamsArray) {
-//       const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    for (const queryParams of queryParamsArray) {
+      const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+      console.log("AUTH TOKEN=",authToken);
+      console.log("QUERY",queryParams);
 
-//       const response = await HomeAPI({
-//         method: 'POST',
-//         url: fullUrl,
-//         data: body,
-//         headers: {
-//           Authorization: `Bearer ${authToken}`,
-//         },
-//       });
+      const response = await HomeAPI({
+        method: 'POST',
+        url: fullUrl,
+        data: body,
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+        },
+      });
 
-//       results.push(response.data);
-//     }
+      results.push(response.data);
+    }
 
-//     // console.log('Results:', results);
+    // console.log('Results:', results);
 
-//     return results;
-//   } catch (error) {
-//     console.error('Error in accessDependent:', error);
-//     throw error;
-//   }
-// };
+    return results;
+  } catch (error) {
+    console.error('Error in accessDependent:', error);
+    throw error;
+  }
+};
 
 export const getDependentUsers=async(authTokenArray)=>{
   try{
@@ -200,6 +202,86 @@ export const addBasicDetails=async(authToken,body,queryParams) =>{
   }
   catch(err){
     console.log("ERROR",err);
+    throw err;
+  }
+}
+export const uploadtoAWS=async(authToken,base64Code,queryParams)=>{
+  try{
+    if(!authToken){
+      authToken=await getApiKey();
+    }
+    const ApiUrl=Base_URLs.UploadToAWS_URL;
+    const body={
+      base64_code:base64Code
+    };
+    const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    return await HomeAPI({
+      method: 'POST',
+      url: fullUrl,
+      data: body,
+      headers:{
+        Authorization:`Bearer ${authToken}`
+      }
+    }).then(res => {
+      console.log("uploaded to cloud",res.data);
+      return res.data;
+    });
+  }
+  catch(err)
+  {
+    console.log("ERROR WHILE UPLOADING TO AWS",err);
+    throw err;
+  }
+}
+
+export const saveDocument=async(authToken,queryParams)=>{
+  try{
+    if(!authToken){
+      authToken=await getApiKey();
+    }
+    const ApiUrl=Base_URLs.UploadToAWS_URL;
+    const body={}
+    const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    return await HomeAPI({
+      method: 'POST',
+      url: fullUrl,
+      data: body,
+      headers:{
+        Authorization:`Bearer ${authToken}`
+      }
+    }).then(res => {
+      console.log("File added to global documents",res.data);
+      return res.data;
+    });
+  }
+  catch(err){
+    console.log("ERROR WHILE UPLOADING TO GLOBAL DOCS",err);
+    throw err;
+  }
+}
+
+export const UploadProfileVerification=async(authToken,queryParams)=>{
+  try{
+    if(authToken==undefined){
+      authToken=await getApiKey();
+    }
+    const ApiUrl=Base_URLs.ProfileVerification_URL;
+    const body={};
+    const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    return await HomeAPI({
+      method: 'POST',
+      url: fullUrl,
+      data: body,
+      headers:{
+        Authorization:`Bearer ${authToken}`
+      }
+    }).then(res => {
+      console.log("uPLOAD PROFILE VERIFICATION",res.data);
+      return res.data;
+    });
+  }
+  catch(err){
+    console.log("ERROR WHILE PROFILE VERIFICATION",err);
     throw err;
   }
 }

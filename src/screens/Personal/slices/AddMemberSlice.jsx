@@ -12,6 +12,7 @@ const initialState = {
   ethnicity: '',
   religion: '',
   IsEdit: '',
+  EditObject:{}
 };
 
 const AddMemberSlice = createSlice({
@@ -54,6 +55,9 @@ const AddMemberSlice = createSlice({
     set_AddMember_Complete(state, action) {
       state = action.payload;
     },
+    set_AddMember_EditObject(state,action){
+      state.EditObject=action.payload;
+    },
     ClearAddMembeData(state, action) {
       state.first_name = '';
       state.last_name = '';
@@ -83,6 +87,7 @@ export const {
   set_AddMember_BloodGroup,
   set_AddMember_Complete,
   set_AddMember_IsEdit,
+  set_AddMember_EditObject,
   ClearAddMembeData,
 } = AddMemberSlice.actions;
 

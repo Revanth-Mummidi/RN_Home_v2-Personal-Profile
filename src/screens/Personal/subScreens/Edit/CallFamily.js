@@ -21,10 +21,12 @@ import {useDispatch, useSelector} from 'react-redux';
 import CountryCode from '../../../Login/components/CountyCodePicker';
 import ContactsList from './ContactsList';
 import { setUserName } from '../../../../utils/LocalStorage';
-import { FetchEmergencyContacts, addEmergencyContacts } from '../../utils/PersonalServerRequests';
+import { FetchEmergencyContacts, addEmergencyContacts, getDependentUsers, getMainProfile, getMembers } from '../../utils/PersonalServerRequests';
 
 import LinearGradient from 'react-native-linear-gradient';
 import getRandomLGColor from '../../../_components/uiStyles/GetRandomLGColors';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../../../../redux/slices/AddDependantUserSlice';
+import { setCurrentUserProfile } from '../../slices/PersonalProfileStates';
 //changed
 const CallFamily = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
@@ -139,6 +141,42 @@ const CallFamily = () => {
       </Pressable>
     );
   };
+  const fetchAccessDependent=async(data)=>{
+    try{
+    let dependantArray= await getDependentUsers(data);
+    // dependantArray=[...dependantArray];
+    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    let mainProfile=await getMainProfile();
+    dispatch(setParentProfile(mainProfile));
+    dispatch(setCurrentUserProfile(mainProfile));
+    // console.log("MAIN PROFILE=",mainProfile);
+    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+
+    const combinedData=[mainProfile,...dependantArray];
+    console.log("COMBINED DATA",combinedData);
+
+    dispatch(setDependantUsers(combinedData));
+  }catch(err){console.log("Fetch ACCESS DEP",err)}
+   }
+
+   const fetchDependentUsers=async()=>{
+    try{
+      let arr=await getMembers();
+      arr=arr.data.data;
+    
+      dispatch(setDependantUsersEHID(arr));
+      let arr3=[];
+      
+     arr3= arr.map((data,index)=>{
+         return {authToken:data.dependent_access_token};
+      });
+      fetchAccessDependent(arr3);
+    }catch(err){
+      console.log("fetchdep",err)
+    }
+    
+     
+   }
   function phoneNumberHandler() {
       setMod(true);
   }
@@ -159,8 +197,9 @@ const CallFamily = () => {
       phoneNumber:phoneNumber,
       relation:relation
     };
-   setMyPhoneNumbers(phoneList => [...phoneList, param]);
+    setMyPhoneNumbers(phoneList => [...phoneList, param]);
     await addEmergencyContacts(CurrentProfile.dependant_access_token,param);
+    await fetchDependentUsers();
     refAddFamily.current.close();
     await fetchContacts();
     setPhoneNumber('');

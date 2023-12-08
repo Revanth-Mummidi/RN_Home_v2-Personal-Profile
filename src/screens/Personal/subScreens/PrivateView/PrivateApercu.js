@@ -37,10 +37,11 @@ import { useDispatch, useSelector } from 'react-redux';
 import { getColor } from '../../../../themes/GetColor';
 import UserVerification from '../Edit/UserVerification';
 import { useNavigation } from '@react-navigation/native';
-import { ClearAddMembeData, set_AddMember_BloodGroup, set_AddMember_Complete, set_AddMember_DateOfBirth, set_AddMember_FirstName, set_AddMember_Gender, set_AddMember_IsEdit, set_AddMember_LastName } from '../../slices/AddMemberSlice';
+import { ClearAddMembeData, set_AddMember_BloodGroup, set_AddMember_Complete, set_AddMember_DateOfBirth, set_AddMember_EditObject, set_AddMember_FirstName, set_AddMember_Gender, set_AddMember_IsEdit, set_AddMember_LastName, set_AddMember_Relation } from '../../slices/AddMemberSlice';
 import { parseDateString } from '../../utils/Conversions';
 import { responsiveFontSize, responsiveHeight, useResponsiveHeight } from '../../../../themes/ResponsiveDimensions';
 import getRandomLGColor from '../../../_components/uiStyles/GetRandomLGColors';
+import { accessDependent } from '../../utils/PersonalServerRequests';
 // import { Modal } from 'react-native-paper';
 
 const initialState = {
@@ -79,6 +80,9 @@ const PrivateApercu = ({ imageURL }) => {
   const [profileImage, setProfileImage] = useState(false);
   const [profileEditClicked, setProfileEditClicked] = useState(false);
   const dispatch = useDispatch();
+  const mainProfile = useSelector(
+    state => state.dependant_users,
+  ).parent_profile;
   const CurrentProfile = useSelector(state => state.PersonalReducers.general_states).current_user_profile;
 
   
@@ -142,9 +146,9 @@ const PrivateApercu = ({ imageURL }) => {
   const editProfileImage = () => {
     return (
       <View style={{ width: '100%' }}>
-        <View style={{ ...styles.profileContainer, alignSelf: 'center' }}>
+        {image?(<View style={{ ...styles.profileContainer, alignSelf: 'center' }}>
           <Image source={image} style={styles.Image200} resizeMode={'cover'} />
-        </View>
+        </View>):null}
         <View style={{ flexDirection: 'row', justifyContent: 'space-evenly' }}>
           <Pressable style={{ ...styles.buttonContainer, minWidth: '20%' }}>
             <Image
@@ -274,7 +278,17 @@ const PrivateApercu = ({ imageURL }) => {
       </View>
     );
   };
-
+  const handleEditProfile=async()=>{
+    try{
+       console.log("CURRENT PROFILE=",CurrentProfile.eh_user_id);
+       const object1=await accessDependent([{dependent_user_id:CurrentProfile.eh_user_id}]);
+       console.log("EDIT OBJECT",object1);
+       return object1[0];    
+    }
+    catch(err){
+      console.log("ERROR WHILE EDITING",err);
+    }
+  }
   return (
     <ScrollView nestedScrollEnabled={true} style={styles.parent}>
       {/* <HandleBottomSheet
@@ -413,33 +427,13 @@ const PrivateApercu = ({ imageURL }) => {
                 />
                 <Text style={styles.subtitle13}>{item?.Locations}</Text>
               </View>
-              <Pressable
-                onPress={() => {
-
-                  //  dispatch(ClearAddMembeData());
-                  // dispatch(set_AddMember_IsEdit(true));
-                  const initState= {
-                    first_name:CurrentProfile.user_first_name,
-                    last_name:CurrentProfile.user_last_name,
-                    date_of_birth:CurrentProfile.date_of_birth,
-                    gender:CurrentProfile.gender,
-                    blood_group:CurrentProfile.blood_group,
-                    relation:CurrentProfile.relation,
-                    profession:CurrentProfile.profession,
-                    nationality:'',
-                    ethnicity:'',
-                    religion:'',
-                    IsEdit:true,    
-                  }
-                  dispatch(set_AddMember_FirstName(CurrentProfile.user_first_name));
-                  dispatch(set_AddMember_IsEdit(true));
-                  dispatch(set_AddMember_LastName(CurrentProfile.user_last_name));
-                  dispatch(set_AddMember_BloodGroup(CurrentProfile.blood_group));
-                  dispatch(set_AddMember_Gender(CurrentProfile.gender));
-                  dispatch(set_AddMember_DateOfBirth(parseDateString(CurrentProfile.date_of_birth)));
-                  // dispatch(set_AddMember_Complete(initState));
-                  console.log("EDITED=",initState);
-                  navigation.navigate('PersonalAddChildMember');
+              {
+              CurrentProfile!=mainProfile?(<Pressable
+                onPress={async() => {
+                  const EditObject=await handleEditProfile();
+                  console.log("EDIT CLICKED=");
+                  dispatch(set_AddMember_EditObject(EditObject));
+                  navigation.navigate('PersonalEditChildMember');
 
                 }}
                 style={{ position: 'absolute', right: 17, top: 14 }}>
@@ -448,7 +442,7 @@ const PrivateApercu = ({ imageURL }) => {
                   size={19}
                   color={Color.lightGray}
                 />
-              </Pressable>
+              </Pressable>):null}
             </View>
 
             <View

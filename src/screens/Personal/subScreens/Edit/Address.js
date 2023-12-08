@@ -49,7 +49,13 @@ import {
   createAddress,
   editAddress,
   fetchAddress,
+  getDependentUsers,
+  getMainProfile,
+  getMembers,
 } from '../../utils/PersonalServerRequests';
+import { setImageURI } from '../../../../redux/slices/ProfilePicSlice';
+import { setCurrentUserProfile } from '../../slices/PersonalProfileStates';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../../../../redux/slices/AddDependantUserSlice';
 //changed
 const Address = () => {
   const Color = getColor(useSelector(state => state.theme.theme));
@@ -73,6 +79,7 @@ const Address = () => {
   const navigation = useNavigation();
 
   // ADD ADDRESS
+  
   const AddAddress = () => {
     const CurrentProfile = useSelector(
       state => state.PersonalReducers.general_states,
@@ -94,7 +101,7 @@ const Address = () => {
     //   landmark:'',
     //   latitude:'',
     //   longitude:'',
-    //   pin_code:'',
+    //   pin_code:'',5
     //   state:'',
     //   type:0,
     //   verify:false
@@ -120,13 +127,16 @@ const Address = () => {
           verify: false,
         })
 
-    // useEffect(()=>{
-    //   let arr=images;
-    //   arr.push(Photo);
-    //   setImages(arr);
-    //   console.log("Images =",images);
-    //   console.log("PHOTOTS",Photo);
-    // },[Photo]);
+    useEffect(()=>{
+      if(Photo!=''){
+      let arr=images;
+      arr.push(Photo);
+      setImages(arr);
+
+      console.log("Images =",images);
+      console.log("PHOTOTS",Photo);
+      }
+    },[Photo]);
     useEffect(() => {
       if (isEdit) {
         setErrorArray([1, 1, 1, 1, 1, 1, 1, 1]);
@@ -150,6 +160,10 @@ const Address = () => {
     const [longitude, setLongitude] = useState(object.longitude);
     const [primary, setPrimary] = useState(object.verify ? 1 : 0);
     const [editID, setEditID] = useState(object.id);
+  
+   useEffect(()=>{
+    dispatch(setImageURI(''));
+   },[]);
 
     const GetFromPinCode = async pincode => {
       const pin = parseInt(pincode);
@@ -269,6 +283,7 @@ const Address = () => {
         );
           
         const res = await createAddress(CurrentProfile.access_token, bodyData);
+        await fetchDependentUsers();
         console.log('SUCCESS', res.data[0]);
         // let arr = [...addressData, tempObj];
         // setAddressData(arr);
@@ -297,6 +312,7 @@ const Address = () => {
         }
         console.log("FINAL EDIT=",queryParams);
         const res = await EditAddressItem(CurrentProfile.access_token, queryParams);
+        await fetchDependentUsers();
        
       } catch (err) {
         console.log('ERROR WHILE EDITING ADDRESS', err);
@@ -334,33 +350,52 @@ const Address = () => {
     const handleDelete = async () => {
       try {
         await DeleteAddressItem(CurrentProfile.access_token, object.id);
+        await fetchDependentUsers();
       } catch (err) {
         console.log('ERROR while del add', err);
         throw err;
       }
     };
 
-    const setEditedValues=()=>{
-     const temp= {
-        address: address,
-        city:city,
-        country: country,
-        custom_title:title,
-        district: district,
-        door_no: dno,
-        id: editID,
-        images: [],
-        landmark: landmark,
-        latitude: latitude,
-        longitude: longitude,
-        pin_code: pinCode,
-        state: state,
-        type: addressCategory==1?'home':'office',
-        verify: primary==1?true:false,
+    const fetchAccessDependent=async(data)=>{
+      try{
+      let dependantArray= await getDependentUsers(data);
+      // dependantArray=[...dependantArray];
+      console.log("DEPENDENT USER ARRAY=",...dependantArray);
+      let mainProfile=await getMainProfile();
+      dispatch(setParentProfile(mainProfile));
+      dispatch(setCurrentUserProfile(mainProfile));
+      // console.log("MAIN PROFILE=",mainProfile);
+      // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+  
+      const combinedData=[mainProfile,...dependantArray];
+      console.log("UPDATED EDIT",combinedData);
+  
+      dispatch(setDependantUsers(combinedData));
+    }catch(err){console.log("Fetch ACCESS DEP",err)}
+     }
+  
+     const fetchDependentUsers=async()=>{
+      try{
+        let arr=await getMembers();
+        arr=arr.data.data;
+        // let array1=arr.map((data,index)=>{
+        //   return data.child_eh_user_id;
+        // });
+       
+        dispatch(setDependantUsersEHID(arr));
+        let arr3=[];
+        
+       arr3= arr.map((data,index)=>{
+           return {authToken:data.dependent_access_token};
+        });
+        fetchAccessDependent(arr3);
+      }catch(err){
+        console.log("fetchdep",err)
       }
-      setEditObject(temp);
-    }
-
+      
+       
+     }
     return (
       <View>
         <LinearGradient
@@ -819,6 +854,7 @@ const Address = () => {
               style={{justifyContent: 'flex-start'}}
               onPress={() => {
                 handleDelete();
+              
                 setAddAddress(false);
               }}>
               <View
@@ -854,10 +890,12 @@ const Address = () => {
                   // console.log('EDIT?+=', isEdit);
                   // console.log('OBJECT=', obj);
                   handleSave(obj);
+                  // fetchDependentUsers();
                 } else {
                   // setEditedValues();
                   // console.log('OBJ IN EDIT', isEdit, object);
                   handleEdit();
+                  // fetchDependentUsers();
                 }
 
                 setAddAddress(false);

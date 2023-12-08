@@ -5,13 +5,14 @@ import { selectFile } from '../../Home/utils/Permissions'
 import { useState } from 'react'
 import { responsiveHeight, responsiveWidth } from '../../../themes/ResponsiveDimensions'
 import { useNavigation } from '@react-navigation/native'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
+import { setImageURI } from '../../../redux/slices/ProfilePicSlice'
 
 const GalleryPicker = ({off}) => {
   const context = useSelector(state => state.screen.uri);
   const navigation = useNavigation();
   const [data,setData] = useState([]);
-
+  const dispatch=useDispatch();
    async function pick(){
        const res = await selectFile();
        if(res.length == 0){
@@ -22,10 +23,12 @@ const GalleryPicker = ({off}) => {
         console.log(context,"from the gallery")
         if(context == 'Address'){
           console.log('GO from the gallery')
+          console.log("FROM GALLERY,",res[0].uri);
+          dispatch(setImageURI(res[0].uri));
           navigation.goBack();
           return;
         }
-        setData(res)
+         setData(res);
       }
    }
 

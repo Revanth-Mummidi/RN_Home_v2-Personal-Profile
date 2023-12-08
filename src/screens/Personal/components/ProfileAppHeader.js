@@ -148,7 +148,7 @@ import getRandomLGColor from '../../_components/uiStyles/GetRandomLGColors';
                 </View>
               </Pressable>
             </View>
-            <View>{rightElement}</View>
+           {selectedItem==dependentUsers[0]?( <View>{rightElement}</View>):null}
           </View>}
           {profileSlider == true && (
              <View style={{flexDirection:"row",height:responsiveHeight(5),width:'100%'}}>

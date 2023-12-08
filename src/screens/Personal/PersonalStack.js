@@ -3,7 +3,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import PersonalLanding from './screens/PersonalLanding';
 import PersonalPublicProfile from './screens/PersonalPublicProfile';
 import PersonalAddChildMember from './subScreens/PrivateView/PersonalAddChildMember';
-
+import PersonalEditChildMember from './subScreens/PrivateView/PersonalEditChildMember';
 const Stack = createNativeStackNavigator();
 
 export default function PersonalStack() {
@@ -23,7 +23,10 @@ export default function PersonalStack() {
         name="PersonalAddChildMember"
         component={PersonalAddChildMember}
       />
-      
+      <Stack.Screen
+       name="PersonalEditChildMember"
+       component={PersonalEditChildMember}
+      /> 
     </Stack.Navigator>
   );
 }

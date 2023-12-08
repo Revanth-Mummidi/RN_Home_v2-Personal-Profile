@@ -7,10 +7,11 @@ import {TextInputFields} from '../../../_components';
 import {useDispatch, useSelector} from 'react-redux';
 import getStyles from '../../utils/PersonalStyles';
 import { getColor } from '../../../../themes/GetColor';
-import { setPrimaryEmails, setPrimaryMailIndex } from '../../slices/PersonalProfileStates';
+import { setCurrentUserProfile, setPrimaryEmails, setPrimaryMailIndex } from '../../slices/PersonalProfileStates';
 import { generateOTP, verifyOTP } from '../../../../apis/ApiRequests';
 import OTPBottomSheet from '../../../Login/components/OTPBottomSheet';
-import { addBasicDetails } from '../../utils/PersonalServerRequests';
+import { addBasicDetails, getDependentUsers, getMainProfile, getMembers } from '../../utils/PersonalServerRequests';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../../../../redux/slices/AddDependantUserSlice';
 const Email = () => {
   const styles=getStyles();
   const Color=getColor(useSelector(state=>state.theme.theme));
@@ -114,6 +115,8 @@ const Email = () => {
       country_code:'',
       otp: otp,
     };
+    console.log("UDAY OTP=",otp);
+
     const res = await verifyOTP(bodyData);
     console.log(res,"RESULT=");
     if(res == true){
@@ -124,12 +127,52 @@ const Email = () => {
       Alert.alert("Successs");
 
     }else{
+
       Alert.alert("Failure");
     }
 }
 
 
+const fetchAccessDependent=async(data)=>{
+  try{
+  let dependantArray= await getDependentUsers(data);
+  // dependantArray=[...dependantArray];
+  console.log("DEPENDENT USER ARRAY=",...dependantArray);
+  let mainProfile=await getMainProfile();
+  dispatch(setParentProfile(mainProfile));
+  dispatch(setCurrentUserProfile(mainProfile));
+  // console.log("MAIN PROFILE=",mainProfile);
+  // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+
+  const combinedData=[mainProfile,...dependantArray];
+  console.log("UPDATED IN EMAIL",combinedData);
+
+  dispatch(setDependantUsers(combinedData));
+}catch(err){console.log("Fetch ACCESS DEP",err)}
+ }
+
+ const fetchDependentUsers=async()=>{
+  try{
+    let arr=await getMembers();
+    arr=arr.data.data;
+    // let array1=arr.map((data,index)=>{
+    //   return data.child_eh_user_id;
+    // });
+   
+    dispatch(setDependantUsersEHID(arr));
+    let arr3=[];
+    
+   arr3= arr.map((data,index)=>{
+       return {authToken:data.dependent_access_token};
+    });
+    fetchAccessDependent(arr3);
+  }catch(err){
+    console.log("fetchdep",err)
+  }
   
+   
+ }
+
   const dispatch=useDispatch();
   useEffect(()=>{
    dispatch(setPrimaryEmails(emailList));
@@ -140,7 +183,9 @@ const Email = () => {
     alternate_email_id:[emailList[!primary]],
     weight:'',
     height:''
-  },{email_id:emailList[primary]});
+  }  
+  ,{email_id:emailList[primary]});
+  fetchDependentUsers();
   },[emailList,primary]);
   return (
     <View style={{flex: 1, width: '100%', padding: 10}}>

@@ -41,16 +41,7 @@ const CallDoctor = () => {
   const refCC = useRef(null);
   const [count,setCount]=useState(0);
   const refAddFamily = React.useRef(null);
-  // useEffect(()=>{
-  //  setCount(1);
-
-  //   if(mod)
-  //   refAddFamily.current.close();
-  //   else if(count!=0)
-  //   {
-  //     refAddFamily.current.open();
-  //   }
-  // },[mod]);
+ 
   useEffect(()=>{
     let arr=[0,0,0],brr=[0,0,0];
     if(userName=='')

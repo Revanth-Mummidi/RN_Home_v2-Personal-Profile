@@ -15,6 +15,7 @@ import DateTimeScrollablePicker from '../../../Calender/Components/DateTimeScrol
 import getStyles from '../../utils/PersonalStyles';
 import {
   accessDependent,
+  addBasicDetails,
   addDependent,
   getDependentUsers,
   getMainProfile,
@@ -26,6 +27,7 @@ import {
   ClearAddMembeData,
   set_AddMember_BloodGroup,
   set_AddMember_DateOfBirth,
+  set_AddMember_EditObject,
   set_AddMember_Ethnicity,
   set_AddMember_FirstName,
   set_AddMember_Gender,
@@ -51,20 +53,42 @@ import {
 import {
   setDependantUsers,
   setDependantUsersEHID,
-  setParentProfile,
 } from '../../../../redux/slices/AddDependantUserSlice';
-import { setCurrentUserProfile } from '../../slices/PersonalProfileStates';
+import {setCurrentUserProfile} from '../../slices/PersonalProfileStates';
 //Personal add child member
-export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
-  console.log("Aff");
+export default function PersonalEditChildMember() {
+  // console.log("ROUTE=",route.params);
+  // const {EditObject} = route.params;
+  const Edit=useSelector(state=>state.PersonalReducers.add_member);
+  // const [EditObject,setEditObject]=useState(Edit.EditObject);
+  const EditObject=Edit.EditObject;
+  console.log("EDIT OBJECT",EditObject);
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
   const dispatch = useDispatch();
   const navigation = useNavigation();
-  const mainProfile=useSelector(state=>state.dependant_users).parent_profile;
-  const CurrentProfile = useSelector(
-    state => state.PersonalReducers.general_states,
-  ).current_user_profile;
+  const mainProfile = useSelector(
+    state => state.dependant_users,
+  ).parent_profile;
+  // const CurrentProfile = useSelector(
+  //   state => state.PersonalReducers.general_states,
+  // ).current_user_profile;
+  const obj = useSelector(state => state.PersonalReducers.add_member);
+  const [gender, setGender] = useState(EditObject.gender);
+  const [selected, setSelected] = useState(EditObject.blood_group);
+  const [dob, setDob] = useState(new Date(EditObject.date_of_birth));
+  const [relationShip, setRelationShip] = useState(EditObject.relation);
+  const [Profession,setProfession]=useState(EditObject.profession);
+  const [Nationality,setNationality]=useState(EditObject.nationality);
+  const [Ethncicity,setEthnicity]=useState(EditObject.ethnicity);
+  const [Religion,setReligion]=useState(EditObject.religion);
+  const [FirstName,setFirstName]=useState(EditObject.user_first_name);
+  // const firstName = CurrentProfile.user_first_name;
+  const [LastName,setLastName]=useState(EditObject.user_last_name);
+  // const lastName = CurrentProfile.user_last_name;
+  
+  const username = mainProfile.user_first_name;
+  
   function formatDateToYYYYMMDD(date) {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -72,20 +96,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
   
     return `${year}-${month}-${day}`;
   }
-  const obj = useSelector(state => state.PersonalReducers.add_member);
-  const [gender, setGender] = useState('');
-  const [selected, setSelected] = useState(obj.blood_group);
-  const [dob, setDob] = useState(new Date(obj.date_of_birth));
 
-  const [relationShip, setRelationShip] = useState(obj.relation);
-  const [Profession,setProfession]=useState(EditObject.profession);
-  const [Nationality,setNationality]=useState(EditObject.nationality);
-  const [Ethncicity,setEthnicity]=useState(EditObject.ethnicity);
-  const [Religion,setReligion]=useState(EditObject.religion);
-  const firstName = obj.first_name;
-  const lastName = obj.last_name;
-
-  const username = CurrentProfile.user_first_name;
   const BloodGrp = [
     'A+',
     'A-',
@@ -98,24 +109,44 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
     'Oh+',
     'Oh-',
   ];
+ 
   var activeColor = Color.personal_profile.icons.activeColor;
   var inActiveColor = Color.personal_profile.icons.inactiveColor;
   // useEffect(() => {
-  //   console.log('EDIT ADD MEMBER=', obj);
-  //   console.log("Current Profile",CurrentProfile.user_first_name,"DEPENDENT PROFILE",mainProfile.user_first_name)
-  // }, []);
-  useEffect(() => {
-    dispatch(set_AddMember_Gender(gender));
-    if (gender == '') {
-      if (errorArray[3]) setArrActive(0, 3);
-    } else {
-      if (!errorArray[3]) setArrActive(1, 3);
-    }
-  }, [gender]);
-  useEffect(() => {
-    dispatch(set_AddMember_BloodGroup(selected));
-  }, [selected]);
-  const [errorArray, setErrorArray] = useState([0, 0, 0, 0, 0]);
+  //   if (obj.IsEdit) {
+  //     const arr = [
+  //       FirstName != '' ? 1 : 0,
+  //       LastName != '' ? 1 : 0,
+  //       dob.toDateString() != new Date().toDateString() ? 1 : 0,
+  //       gender != '' ? 1 : 0,
+  //       relationShip != '' ? 1 : 0,
+  //     ];
+  //     const arr1 = [
+  //       !(FirstName != '') ? 1 : 0,
+  //       LastName != '' ? 0 : 1,
+  //       dob.toDateString() != new Date().toDateString() ? 0 : 1,
+  //       gender != '' ? 0 : 1,
+  //       relationShip != '' ? 0 : 1,
+  //     ];
+  //     setErrorArray(arr);
+  //     setShowError(arr1);
+  //     console.log('ERROR ARRAY=', arr);
+  //     console.log('SHOW ARRAY=', arr1);
+  //   }
+  //   console.log('EDITED CONTENT', obj.IsEdit);
+  // }, [obj]);
+  // useEffect(() => {
+  //   dispatch(set_AddMember_Gender(gender));
+  //   if (gender == '') {
+  //     if (errorArray[3]) setArrActive(0, 3);
+  //   } else {
+  //     if (!errorArray[3]) setArrActive(1, 3);
+  //   }
+  // }, [gender]);
+  // useEffect(() => {
+  //   dispatch(set_AddMember_BloodGroup(selected));
+  // }, [selected]);
+  const [errorArray, setErrorArray] = useState([1, 1, 1, 1, 1]);
   const [showError, setShowError] = useState([0, 0, 0, 0, 0]);
   useEffect(() => {
     let arr = errorArray;
@@ -152,92 +183,100 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
     console.log('ARRAY=', arr, 'val', value, 'ind', index);
     setErrorArray(arr);
   };
-  const fetchAccessDependent=async(data)=>{
-    try{
-    let dependantArray= await getDependentUsers(data);
-    // dependantArray=[...dependantArray];
-    console.log("DEPENDENT USER ARRAY=",...dependantArray);
-    let mainProfile=await getMainProfile();
-    dispatch(setParentProfile(mainProfile));
-    dispatch(setCurrentUserProfile(mainProfile));
-    // console.log("MAIN PROFILE=",mainProfile);
-    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+  const fetchAccessDependent = async data => {
+    try {
+      let dependantArray = await getDependentUsers(data);
+      // dependantArray=[...dependantArray];
+      console.log('DEPENDENT USER ARRAY=', ...dependantArray);
+      let mainProfile = await getMainProfile();
+      dispatch(setParentProfile(mainProfile));
+      dispatch(setCurrentUserProfile(mainProfile));
+      // console.log("MAIN PROFILE=",mainProfile);
+      // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
 
-    const combinedData=[mainProfile,...dependantArray];
-    
+      const combinedData = [mainProfile, ...dependantArray];
+      console.log('COMBINED DATA', combinedData);
 
-    dispatch(setDependantUsers(combinedData));
-  }catch(err){console.log("Fetch ACCESS DEP",err)}
-   }
+      dispatch(setDependantUsers(combinedData));
+    } catch (err) {
+      console.log('Fetch ACCESS DEP', err);
+    }
+  };
 
-   const fetchDependentUsers=async()=>{
-    try{
-      let arr=await getMembers();
-      arr=arr.data.data;
+  const fetchDependentUsers = async () => {
+    try {
+      let arr = await getMembers();
+      arr = arr.data.data;
+      // let array1=arr.map((data,index)=>{
+      //   return data.child_eh_user_id;
+      // });
 
       dispatch(setDependantUsersEHID(arr));
-      let arr3=[];
-      
-     arr3= arr.map((data,index)=>{
-         return {authToken:data.dependent_access_token};
+      let arr3 = [];
+
+      arr3 = arr.map((data, index) => {
+        return {authToken: data.dependent_access_token};
       });
       fetchAccessDependent(arr3);
-    }catch(err){
-      console.log("fetchdep",err)
+    } catch (err) {
+      console.log('fetchdep', err);
     }
-       }
-  const handleCreate = async object => {
+  };
+  const handleEdit = async() => {
     try {
       const queryParams = {
-        user_first_name: object.first_name,
-        user_last_name: object.last_name,
-        gender: object.gender,
+        user_first_name:FirstName,
+        user_last_name: LastName,
+        gender: gender,
         date_of_birth: formatDateToYYYYMMDD(dob),
         blood_group:selected,
-        nationality: object.nationality,
-        ethnicity: object.ethnicity,
-        religion: object.religion,
-        relation: object.relation,
+        nationality: Nationality,
+        ethnicity:Ethncicity,
+        religion:Religion,
+        role:Profession,
+        relation:relationShip,
       };
-      const response = await addDependent(queryParams);
-      console.log(response);
+      const response = await addBasicDetails(EditObject.dependent_access_token,{
+        mobileno:'',
+        alternate_mobileno:'',
+        alternate_email_id:'',
+        weight:"",
+        height:""
+      },queryParams);
+      // await fetchDependentUsers();
+
+      console.log("SUCCESSFULLY EDITED",response);
     } catch (err) {
-      console.log("ERROR WHILE ADDING DEPENDENT",err);
+      console.log("ERROR WHILE EDITING",err);
     }
   };
  
-  return (
-    <SafeAreaView i18nIsDynamicList={true}>
-      <ScrollView
-        i18nIsDynamicList={true}
-        nestedScrollEnabled={true}
-        showsVerticalScrollIndicator={false}
-        style={{
-          ...styles.parentWidth,
-          backgroundColor: Color.WHITE,
-        }}>
+  const RenderItem = () => {
+    return (
+      <View>
         <Text
           style={[styles.heading17, styles.headingStyle, {paddingBottom: 5}]}
           i18nIsDynamicList={true}>
-          {!(obj.IsEdit)
-            ? t('Personal Profile.Add Member.Add new member')
-            : 'Edit dependent user'}{' '}
+          {'Edit dependent user'}{' '}
           {'\n'}
           <Text i18nIsDynamicList={true} style={{...styles.subHeading13}}>
             {t("Personal Profile.Add Member.Manage Family's Health")}
           </Text>
         </Text>
-        {/* Camera Component */}
+
         <CameraComponent i18nIsDynamicList={true} />
-        {/* First name and Last Name */}
+
         <View style={styles.textFieldRowBetween} i18nIsDynamicList={true}>
           <View style={{width: '49%'}} i18nIsDynamicList={true}>
             <TextInputFields
               i18nIsDynamicList={true}
-              value={firstName}
+              value={FirstName}
               label={t('Personal Profile.Add Member.First Name *')}
               onChange={e => {
-                dispatch(set_AddMember_FirstName(e));
+                console.log(e);
+                // dispatch(set_AddMember_EditObject({...EditObject,user_first_name:e}));
+                // dispatch(set_AddMember_FirstName(e));
+                setFirstName(e);
                 if (e != '') {
                   if (errorArray[0] == 0) {
                     setArrActive(1, 0);
@@ -249,6 +288,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                     // setShowArrActive(0,0);
                   }
                 }
+                setFirstName(e);
               }}
               error={showError[0] ? 'It should not be empty !' : ''}
             />
@@ -256,21 +296,22 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
           <View style={{width: '49%'}} i18nIsDynamicList={true}>
             <TextInputFields
               i18nIsDynamicList={true}
-              value={lastName}
+              value={LastName}
               label={t('Personal Profile.Add Member.Last Name *')}
               onChange={e => {
+                setLastName(e);
                 if (e != '') {
                   if (errorArray[1] == 0) setArrActive(1, 1);
                 } else {
                   if (errorArray[1] == 1) setArrActive(0, 1);
                 }
-                dispatch(set_AddMember_LastName(e));
+                // dispatch(set_AddMember_LastName(e));
               }}
               error={showError[1] ? 'It should not be empty !' : ''}
             />
           </View>
         </View>
-        {/* Date of Birth */}
+
         <TileCardContainer
           title={t('Personal Profile.Add Member.Date of Birth *')}
           titleStyle={[
@@ -296,16 +337,12 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                 }
                 setDob(date);
                 // console.log(date.toLocaleDateString())
-                dispatch(set_AddMember_DateOfBirth(new Date(e)));
+                // dispatch(set_AddMember_DateOfBirth(new Date(e)));
               }}
             />
           </View>
-          {/* <View style={{}}> */}
-          {/* <ExpandableCalendarTest /> */}
-          {/* </View> */}
-          {/* <DateOnlyPicker /> */}
         </TileCardContainer>
-        {/* Gender */}
+
         <TileCardContainer
           i18nIsDynamicList={true}
           title={t('Personal Profile.Add Member.Gender *')}
@@ -320,7 +357,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             <Pressable
               onPress={() => {
                 setGender('Male');
-                dispatch(set_AddMember_Gender('Male'));
+                // dispatch(set_AddMember_Gender('Male'));
                   if (gender == '') {
                     if (errorArray[3]) setArrActive(0, 3);
                   } else {
@@ -350,7 +387,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             <Pressable
               onPress={() => {
                 setGender('Female');
-                dispatch(set_AddMember_Gender('Female'));
+                // dispatch(set_AddMember_Gender('Female'));
                   if (gender == '') {
                     if (errorArray[3]) setArrActive(0, 3);
                   } else {
@@ -380,7 +417,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             <Pressable
               onPress={() => {
                 setGender('Trans Male');
-                dispatch(set_AddMember_Gender('Trans Male'));
+                // dispatch(set_AddMember_Gender('Trans Male'));
                   if (gender == '') {
                     if (errorArray[3]) setArrActive(0, 3);
                   } else {
@@ -410,7 +447,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             <Pressable
               onPress={() => {
                 setGender('Trans Female');
-                dispatch(set_AddMember_Gender('Trans Female'));
+                // dispatch(set_AddMember_Gender('Trans Female'));
                   if (gender == '') {
                     if (errorArray[3]) setArrActive(0, 3);
                   } else {
@@ -439,7 +476,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             </Pressable>
           </View>
         </TileCardContainer>
-        {/* Blood Group */}
+
         <TileCardContainer
           i18nIsDynamicList={true}
           title={t('Personal Profile.Add Member.Blood Group')}
@@ -458,17 +495,16 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                   horizontal={false}
                   numColumns={4}
                   data={BloodGrp}
-                  // keyExtractor ={ (item) => item.id}
+                  // keyExtractor={item => item.id}
                   renderItem={(item, index) => {
                     // console.log("VAL",item);
                     return (
                       <Pressable
-                      key={index}
+                       key={index}
                         onPress={() => {
                           if (selected != item.item) setSelected(item.item);
                           else setSelected('');
                         }}>
-                        {/* <View style={{backgroundColor:selected}}> */}
                         <Text
                           style={[
                             selected == item.item
@@ -478,7 +514,6 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                           ]}>
                           {item.item}
                         </Text>
-                        {/* </View> */}
                       </Pressable>
                     );
                   }}
@@ -487,7 +522,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
             </View>
           </View>
         </TileCardContainer>
-        {/* Relation with main user */}
+
         <View style={{paddingVertical: 10}}>
           <TextInputFields
             label={t('Personal Profile.Add Member.Relation with', {
@@ -500,55 +535,65 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
               } else {
                 if (errorArray[4] == 1) setArrActive(0, 4);
               }
-              dispatch(set_AddMember_Relation(e));
+              // dispatch(set_AddMember_Relation(e));
               setRelationShip(e);
             }}
             error={showError[4] ? 'It should not be empty !' : ''}
           />
         </View>
-        {/* Profession */}
+
         <View style={{paddingVertical: 10}}>
           <TextInputFields
+            value={Profession}
             label={t('Personal Profile.Add Member.Profession')}
             onChange={e => {
-              dispatch(set_AddMember_Profession(e));
+              setProfession(e);
+              // dispatch(set_AddMember_Profession(e));
             }}
           />
         </View>
-        {/* Nationality  */}
+
         <View style={{paddingVertical: 10}}>
           <TextInputFields
             label={t('Personal Profile.Add Member.Nationality')}
+            value={Nationality}
             onChange={e => {
-              dispatch(set_AddMember_Nationality(e));
+              setNationality(e);
+              // dispatch(set_AddMember_Nationality(e));
             }}
           />
         </View>
-        {/* Ethnicity and Religion  */}
+
         <View style={styles.textFieldRowBetween}>
           <View style={{width: '49%'}}>
             <TextInputFields
+              value={Ethncicity}
               label={t('Personal Profile.Add Member.Ethnicity')}
               onChange={e => {
-                dispatch(set_AddMember_Ethnicity(e));
+                setEthnicity(e);
+                // dispatch(set_AddMember_Ethnicity(e));
               }}
             />
           </View>
           <View style={{width: '49%'}}>
             <TextInputFields
               label={t('Personal Profile.Add Member.Religion')}
-              onChange={e => {
-                dispatch(set_AddMember_Religion(e));
+              value={Religion}
+               onChange={e => {
+                setReligion(e);
+                // dispatch(set_AddMember_Religion(e));
               }}
             />
           </View>
         </View>
         <View
-          style={{marginBottom: responsiveHeight(13), flexDirection: 'row',marginTop:10}}>
-        
-          {/* Create  */}
+          style={{
+            marginBottom: responsiveHeight(13),
+            flexDirection: 'row',
+            marginTop: 10,
+          }}>
           <View style={{flex: 1, justifyContent: 'flex-end'}}>
-            {(<Pressable
+            <Pressable
               onPress={() => {
                 // setArrActive(1,5);
                 let c = 0,
@@ -570,11 +615,10 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                 });
                 setShowError(arr2);
                 if (c == 0) {
-                  handleCreate(obj);
+                  handleEdit();
                   console.log('CREATE CLICKED');
-                  fetchDependentUsers();
-                  navigation.goBack();
                   dispatch(ClearAddMembeData());
+                  navigation.goBack();
                 }
               }}
               style={{
@@ -582,11 +626,25 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                 backgroundColor: Color.personal_profile.icons.activeColor,
               }}>
               <Text style={{...styles.buttonText14, padding: 2}}>
-                {!obj.IsEdit?t('Personal Profile.Add Member.Create'):'Edit'}
+                {'Edit'}
               </Text>
-            </Pressable>)}
+            </Pressable>
           </View>
         </View>
+      </View>
+    );
+  };
+  return (
+    <SafeAreaView i18nIsDynamicList={true}>
+      <ScrollView
+        i18nIsDynamicList={true}
+        nestedScrollEnabled={true}
+        showsVerticalScrollIndicator={false}
+        style={{
+          ...styles.parentWidth,
+          backgroundColor: Color.WHITE,
+        }}>
+        <RenderItem />
       </ScrollView>
     </SafeAreaView>
   );
@@ -597,7 +655,7 @@ function CameraComponent() {
   const navigation = useNavigation();
   const Color = getColor(useSelector(state => state.theme.theme));
   const photo = useSelector(state => state.image);
-  console.log(photo);
+  // console.log(photo);
   return (
     <View
       style={{

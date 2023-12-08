@@ -60,7 +60,7 @@ import { getDetails } from './src/apis/ApiRequests';
 import { checkInternetConnection } from './src/screens/More/utils/MoreServerRequests';
 
 export default function App() {
-  const [auth,setAuth] = useState(false);
+  const [auth,setAuth] = useState(true);
   const [mpin,setMpin] = useState(false);
   
     const handleDataChange = (newData) => { setAuth(true)}

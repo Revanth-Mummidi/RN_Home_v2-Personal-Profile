@@ -5,8 +5,9 @@ import styles from '../../utils/PersonalStyles';
 import {useDispatch, useSelector} from 'react-redux';
 import getStyles from '../../utils/PersonalStyles';
 import { getColor } from '../../../../themes/GetColor';
-import { setMaritalStatus } from '../../slices/PersonalProfileStates';
-import { addBasicDetails } from '../../utils/PersonalServerRequests';
+import { setCurrentUserProfile, setMaritalStatus } from '../../slices/PersonalProfileStates';
+import { addBasicDetails, getDependentUsers, getMainProfile, getMembers } from '../../utils/PersonalServerRequests';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../../../../redux/slices/AddDependantUserSlice';
 
 const MaritalStatus = (refScreens) => {
   const styles=getStyles();
@@ -17,6 +18,45 @@ const MaritalStatus = (refScreens) => {
   const [selected, setSelected] = useState(marital1);
   const active = Color.midBlue;
   const inActive = Color.lightGray;
+  const fetchAccessDependent=async(data)=>{
+    try{
+    let dependantArray= await getDependentUsers(data);
+    // dependantArray=[...dependantArray];
+    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    let mainProfile=await getMainProfile();
+    dispatch(setParentProfile(mainProfile));
+    dispatch(setCurrentUserProfile(mainProfile));
+    // console.log("MAIN PROFILE=",mainProfile);
+    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+
+    const combinedData=[mainProfile,...dependantArray];
+    console.log("COMBINED DATA",combinedData);
+
+    dispatch(setDependantUsers(combinedData));
+  }catch(err){console.log("Fetch ACCESS DEP",err)}
+   }
+
+   const fetchDependentUsers=async()=>{
+    try{
+      let arr=await getMembers();
+      arr=arr.data.data;
+      // let array1=arr.map((data,index)=>{
+      //   return data.child_eh_user_id;
+      // });
+     
+      dispatch(setDependantUsersEHID(arr));
+      let arr3=[];
+      
+     arr3= arr.map((data,index)=>{
+         return {authToken:data.dependent_access_token};
+      });
+      fetchAccessDependent(arr3);
+    }catch(err){
+      console.log("fetchdep",err)
+    }
+    
+     
+   }
   return (
     <View style={{padding: 10}}>
       <Text style={[styles.heading17, styles.headingStyle]}>
@@ -101,6 +141,7 @@ const MaritalStatus = (refScreens) => {
           weight:"",
           height:""
         },{marital_status:selected});
+        fetchDependentUsers();
         // console.log("REFERENCE",refScreens.refScreens.current);
         refScreens.refScreens.current?.close();
       }} style={styles.mediumButton}>

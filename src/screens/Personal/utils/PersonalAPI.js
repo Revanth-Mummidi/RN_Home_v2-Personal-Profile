@@ -41,9 +41,11 @@ export const Base_URLs = {
   GetHospitals_URL: URL + 'profile/get_hospitals',
   IdentityParser_URL: URL + 'profile/identityParser',
   MemberApproval_URL: URL + 'profile/memberApproval',
-  SaveDocument_URL: URL + 'profile/saveDocument',
-  SaveWelcomeData_URL: URL + 'profile/saveWelcomeData',
+  SaveDocument_URL: URL + 'profile/profile/saveDocument',
+  SaveWelcomeData_URL: URL + 'profile/profile/saveWelcomeData',
   PersonalQRCode_URL:URL + 'util/bucket/viewFile',
+  UploadToAWS_URL:URL+'util/bucket/Upload',
+  ProfileVerification_URL:URL + 'profile/profile/profileVerification',
 };
 
 const HomeAPI = axios.create({

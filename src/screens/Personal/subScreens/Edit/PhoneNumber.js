@@ -16,12 +16,13 @@ import getStyles from '../../utils/PersonalStyles';
 import {getColor} from '../../../../themes/GetColor';
 import CountryCode from '../../../Login/components/CountyCodePicker';
 import {Countries} from '../../../Login/Countries'
-import { setPrimaryContactsList, setPrimaryIndex } from '../../slices/PersonalProfileStates';
+import { setCurrentUserProfile, setPrimaryContactsList, setPrimaryIndex } from '../../slices/PersonalProfileStates';
 import ContactsList from './ContactsList';
 import OTPBottomSheet from '../../../Login/components/OTPBottomSheet';
 import { generateOTP, verifyOTP } from '../../../../apis/ApiRequests';
-import { addBasicDetails } from '../../utils/PersonalServerRequests';
+import { addBasicDetails, getDependentUsers, getMainProfile, getMembers } from '../../utils/PersonalServerRequests';
 import VerificationSlice from '../../slices/VerificationSlice';
+import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../../../../redux/slices/AddDependantUserSlice';
 const PhoneNumber = ({refScreens}) => {
   const [otpBottomVisible, setOtpBottomVisible] = useState(false);
   const [isTimerRunning, setIsTimerRunning] = useState(true);
@@ -210,6 +211,45 @@ const PhoneNumber = ({refScreens}) => {
     setMyPhoneNumbers(arr);
   };
   const [primary, setPrimary] = useState(primaryInd);
+  const fetchAccessDependent=async(data)=>{
+    try{
+    let dependantArray= await getDependentUsers(data);
+    // dependantArray=[...dependantArray];
+    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    let mainProfile=await getMainProfile();
+    dispatch(setParentProfile(mainProfile));
+    dispatch(setCurrentUserProfile(mainProfile));
+    // console.log("MAIN PROFILE=",mainProfile);
+    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+
+    const combinedData=[mainProfile,...dependantArray];
+    console.log("UPDATED PHONE NUMBER DATA",combinedData);
+
+    dispatch(setDependantUsers(combinedData));
+  }catch(err){console.log("Fetch ACCESS DEP",err)}
+   }
+
+   const fetchDependentUsers=async()=>{
+    try{
+      let arr=await getMembers();
+      arr=arr.data.data;
+      // let array1=arr.map((data,index)=>{
+      //   return data.child_eh_user_id;
+      // });
+     
+      dispatch(setDependantUsersEHID(arr));
+      let arr3=[];
+      
+     arr3= arr.map((data,index)=>{
+         return {authToken:data.dependent_access_token};
+      });
+      fetchAccessDependent(arr3);
+    }catch(err){
+      console.log("fetchdep",err)
+    }
+    
+     
+   }
   useEffect(()=>{
    dispatch(setPrimaryContactsList(myPhoneNumbers));
    dispatch(setPrimaryIndex(primary));
@@ -224,6 +264,7 @@ const PhoneNumber = ({refScreens}) => {
     weight:'',
     height:''
   },{});
+  fetchDependentUsers();
   console.log("ADDED DETAILS=",CurrentProfile);
   },[primary,myPhoneNumbers])
   return (

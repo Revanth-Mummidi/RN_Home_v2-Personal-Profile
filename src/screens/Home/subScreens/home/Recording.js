@@ -5,18 +5,10 @@ import RNFS from 'react-native-fs';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons'
 import { useNavigation } from '@react-navigation/native';
 import DocumentPicker from 'react-native-document-picker';
-// import { launchImageLibrary } from 'react-native-image-picker';
-// import Svg, { Path } from "react-native-svg";
 import { Flash,FlashOff,Gallery,Shutter ,Rotate,Record,RecordActive,Scan} from '../../assets/SVG/svgIcons';
-// import Icon from "react-native-vector-icons/MaterialIcons";
-import Camera from "react-native-vector-icons/Ionicons";
-// import Square from "react-native-vector-icons/FontAwesome";
 import { BarcodeScanner } from './Qrcode';
-// import Scan from "react-native-vector-icons/MaterialCommunityIcons";
-// import Gallery from "react-native-vector-icons/MaterialCommunityIcons";
 import axios from 'axios';
 import {Base_URLs} from '../../utils/HomeAPI';
-import { getUserDetails,getApiKey,getUserName} from '../../../../utils/LocalStorage';
 import {ImagePreview,PDFViewer} from './Preview'
 import { selectFile } from '../../utils/Permissions';
 import { useDispatch, useSelector } from 'react-redux';
@@ -176,12 +168,17 @@ const Recording = ({ isSaved,route} ) => {
           const options = { quality: 0.3, base64: true };
           const data = await cameraRef.current.takePictureAsync(options);
           console.log("Photo captured:", data.uri);
+          if(mode == 'Address'){
+                 console.log("WITHOUT PREVIEW",data.uri); 
+                 nav.goBack();
+          }else{
           nav.navigate('ImagePreview', {
             imageUri: data.uri,
             setPhotoCapture: handleSetPhoto,
             mode:mode
           }); // Navigate to the ImagePreviewScreen
         }
+      }
       } catch (error) {
         console.error("Photo capture error:", error.message);
       }
@@ -402,7 +399,7 @@ const Recording = ({ isSaved,route} ) => {
           <View style={styles.buttonContainer}>
             
             <View style={styles.buttonFlex}>
-              {!isRecording && !(mode == 'isProfile') ?<TouchableOpacity onPress={toggleBarcodeScanner} style={styles.scanIcon}>
+              {!isRecording && !(mode == 'isProfile' || mode == 'Address') ?<TouchableOpacity onPress={toggleBarcodeScanner} style={styles.scanIcon}>
                 {/* <Scan style={styles.scanIcon} name="line-scan" /> */}
                 <Scan
                   width={35}
@@ -424,12 +421,12 @@ const Recording = ({ isSaved,route} ) => {
               {/* {!isRecording?<TouchableOpacity onPress={openImagePicker} style={styles.imagePickerIcon}>
                 <Gallery />
               </TouchableOpacity>:(<View></View>)} */}
-              {!isRecording && !(mode == 'isProfile') ?<TouchableOpacity onPress={pickDocument} style={styles.scanIcon}>
+              {!isRecording && !(mode == 'isProfile' || mode == 'Address') ?<TouchableOpacity onPress={pickDocument} style={styles.scanIcon}>
                 {/* <Scan style={styles.scanIcon} name="line-scan" /> */}
                 <MaterialIcon name={"file-document-outline"} color={'white'} size={40}/>
               </TouchableOpacity>:(<View></View>)}
               {
-                mode == 'isProfile' && 
+               ( mode == 'isProfile' || mode == 'Address') && 
                 <View style={{justifyContent:'space-between',flexDirection:'row',marginRight:25}}>
                 <TouchableOpacity onPress={()=>{gallery()}}>
                   <MaterialIcon name={"image"} color={'white'} size={75}/>
