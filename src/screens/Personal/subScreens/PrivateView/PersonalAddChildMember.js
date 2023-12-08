@@ -57,6 +57,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
   const styles = getStyles();
   const dispatch = useDispatch();
   const navigation = useNavigation();
+  const mainProfile=useSelector(state=>state.dependant_users).parent_profile;
   const CurrentProfile = useSelector(
     state => state.PersonalReducers.general_states,
   ).current_user_profile;
@@ -85,6 +86,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
   var inActiveColor = Color.personal_profile.icons.inactiveColor;
   useEffect(() => {
     console.log('EDIT ADD MEMBER=', obj);
+    console.log("Current Profile",CurrentProfile.user_first_name,"DEPENDENT PROFILE",mainProfile.user_first_name)
   }, []);
   useEffect(() => {
     dispatch(set_AddMember_Gender(gender));
@@ -175,6 +177,14 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
       console.log(err);
     }
   };
+  const handleDelete=()=>{
+    try{
+
+    }
+    catch(err){
+      console.log("ERROR IN DELETE",err)
+    }
+  }
   return (
     <SafeAreaView i18nIsDynamicList={true}>
       <ScrollView
@@ -188,7 +198,7 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
         <Text
           style={[styles.heading17, styles.headingStyle, {paddingBottom: 5}]}
           i18nIsDynamicList={true}>
-          {obj.IsEdit
+          {!(obj.IsEdit)
             ? t('Personal Profile.Add Member.Add new member')
             : 'Edit dependent user'}{' '}
           {'\n'}
@@ -489,20 +499,10 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
         </View>
         <View
           style={{marginBottom: responsiveHeight(13), flexDirection: 'row',marginTop:10}}>
-          {/* Delete  */}
-          <Pressable
-            onPress={() => {handleDelete()}}
-            style={{
-              ...styles.mediumButton,
-              // marginBottom: responsiveHeight(13),
-              // backgroundColor: Color.personal_profile.icons.activeColor,
-              backgroundColor:Color.red
-            }}>
-            <Text style={{...styles.buttonText14, padding: 2,color:'white'}}>Delete</Text>
-          </Pressable>
+        
           {/* Create  */}
           <View style={{flex: 1, justifyContent: 'flex-end'}}>
-            <Pressable
+            {CurrentProfile!=mainProfile?(<Pressable
               onPress={() => {
                 // setArrActive(1,5);
                 let c = 0,
@@ -536,9 +536,9 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
                 backgroundColor: Color.personal_profile.icons.activeColor,
               }}>
               <Text style={{...styles.buttonText14, padding: 2}}>
-                {obj.IsEdit?t('Personal Profile.Add Member.Create'):'Edit'}
+                {!obj.IsEdit?t('Personal Profile.Add Member.Create'):'Edit'}
               </Text>
-            </Pressable>
+            </Pressable>):null}
           </View>
         </View>
       </ScrollView>

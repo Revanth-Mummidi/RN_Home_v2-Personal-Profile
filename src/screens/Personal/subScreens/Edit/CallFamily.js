@@ -118,6 +118,7 @@ const CallFamily = () => {
     console.log("DATA=",data);
     return (
       <Pressable
+      key={index}
         style={{
           justifyContent: 'center',
           alignItems: 'center',

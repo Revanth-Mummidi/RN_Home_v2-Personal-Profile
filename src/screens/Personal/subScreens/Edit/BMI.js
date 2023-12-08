@@ -8,7 +8,8 @@ import getStyles from '../../utils/PersonalStyles';
 import {getColor} from '../../../../themes/GetColor';
 import { BMIconverter } from '../../utils/Conversions';
 import { setBMI, setBMIHeight, setBMIWeight } from '../../slices/PersonalProfileStates';
-import { addBasicDetails, addWeightandHeight } from '../../utils/PersonalServerRequests';
+import { addBasicDetails, addWeightandHeight, getMainProfile } from '../../utils/PersonalServerRequests';
+import { setDependantUsers, setDependantUsersEHID } from '../../../../redux/slices/AddDependantUserSlice';
 
 const BMI = (refScreens) => {
   const Color = getColor(useSelector(state => state.theme.theme));
@@ -26,7 +27,43 @@ const BMI = (refScreens) => {
   useEffect(()=>{
     setBmi(BMIconverter(weight,height));
   },[weight,height]);
-  
+   
+  const fetchAccessDependent=async(data)=>{
+    try{
+    let dependantArray= await getDependentUsers(data);
+    // dependantArray=[...dependantArray];
+    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    let mainProfile=await getMainProfile();
+    dispatch(setParentProfile(mainProfile));
+    dispatch(setCurrentUserProfile(mainProfile));
+    // console.log("MAIN PROFILE=",mainProfile);
+    // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
+
+    const combinedData=[mainProfile,...dependantArray];
+    console.log("COMBINED DATA",combinedData);
+
+    dispatch(setDependantUsers(combinedData));
+  }catch(err){console.log("Fetch ACCESS DEP",err)}
+   }
+
+   const fetchDependentUsers=async()=>{
+    try{
+      let arr=await getMembers();
+      arr=arr.data.data;
+      dispatch(setDependantUsersEHID(arr));
+      let arr3=[];
+      
+     arr3= arr.map((data,index)=>{
+         return {authToken:data.dependent_access_token};
+      });
+      fetchAccessDependent(arr3);
+    }catch(err){
+      console.log("fetchdep",err)
+    }
+    
+     
+   }
+
   const styles = getStyles();
   return (
     <View style={{...styles.parent, ...styles.padding10}}>
@@ -82,6 +119,7 @@ const BMI = (refScreens) => {
                 unit:'cm'
               }
             },{});
+            fetchDependentUsers();
             refScreens.refScreens.current.close();
           }} style={{...styles.mediumButton,backgroundColor:Color.badge_bg}}>
             <Text style={{...styles.buttonText14, paddingHorizontal: 10}}>

@@ -1,4 +1,4 @@
-import API from '../../../axios/API';
+import API, { BASE_URL } from '../../../axios/API';
 import NetInfo from '@react-native-community/netinfo';
 // import Toast from 'react-native-toast-message';
 import { Toast } from '../../_components';
@@ -251,29 +251,29 @@ export const fetchAddress=async(authToken)=>{
   }
 }
 
-export const editAddress=async(authToken)=>{
-  try{
-    if(!authToken){
-      authToken=await getApiKey();  
-    }
-    // console.log(authToken)
-    const ApiUrl=Base_URLs.EditAddress_URL;
-    // console.log(ApiUrl)
-    return await HomeAPI({
-      method: 'POST',
-      url: ApiUrl,
-      data: {},
-      headers:{
-        Authorization:`Bearer ${authToken}`
-      }
-    }).then(res => {
-      return res.data
-    });
-  }
-  catch(err){
-    throw err;
-  }
-}
+// export const editAddress=async(authToken)=>{
+//   try{
+//     if(!authToken){
+//       authToken=await getApiKey();  
+//     }
+//     // console.log(authToken)
+//     const ApiUrl=Base_URLs.EditAddress_URL;
+//     // console.log(ApiUrl)
+//     return await HomeAPI({
+//       method: 'POST',
+//       url: ApiUrl,
+//       data: {},
+//       headers:{
+//         Authorization:`Bearer ${authToken}`
+//       }
+//     }).then(res => {
+//       return res.data
+//     });
+//   }
+//   catch(err){
+//     throw err;
+//   }
+// }
 
 export const getUserProfile=async(authToken,filepath)=>{
   try{
@@ -439,11 +439,26 @@ export const DeleteAddressItem=async(authToken,addressID)=>{
   }
 }
 
-// export const EditAddressItem=async(authToken,queryParams)=>{
-//   try{
+export const EditAddressItem=async(authToken,queryParams)=>{
+  try{
+    const ApiUrl=Base_URLs.EditAddress_URL;
+    const body={}
+    const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    return await HomeAPI({
+      method: 'POST',
+      url: fullUrl,
+      data: body,
+      headers:{
+        Authorization:`Bearer ${authToken}`
+      }
+    }).then(res => {
+      console.log("EDITED SUCCESSFULLY=",res.data);
 
-//   }
-//   catch(err){
-//     console.log("ERROR IN EDIT ADDRESS",err)
-//   }
-// }
+      return res.data;
+    });
+
+  }
+  catch(err){
+    console.log("ERROR IN EDIT ADDRESS",err)
+  }
+}

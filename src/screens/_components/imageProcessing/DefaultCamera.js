@@ -17,19 +17,21 @@ const DefaultCamera = () => {
             if(context != 'Address'){
             navigation.goBack();
             }
+            
             console.log(res);
          }else{
             console.log(res,"FROM THE DEFAULT CAMERA");
             if(context == 'Address'){
                 console.log('GOback') 
-                dispatch(setImageURI(res.assets[0].uri));
-                // return res.assets[0].uri;
+                
+                return res.assets[0].uri;
                
             }
          }
     }
     useEffect(()=>{
-       Imgdata()
+        let a=Imgdata();
+        dispatch(setImageURI(a)); 
        
     },[]);
 

@@ -130,6 +130,7 @@ const MasterNavigator = () => {
      
       dispatch(setDependantUsersEHID(arr));
       let arr3=[];
+      
      arr3= arr.map((data,index)=>{
          return {authToken:data.dependent_access_token};
       });

@@ -2,7 +2,12 @@
 /* eslint-disable react-native/no-inline-styles */
 import {Pressable, ScrollView, StyleSheet, Text, View} from 'react-native';
 import React, {useEffect, useState} from 'react';
-import {DualButton, HandleBottomSheet, MediaWrapper, TextInputFields} from '../../../_components';
+import {
+  DualButton,
+  HandleBottomSheet,
+  MediaWrapper,
+  TextInputFields,
+} from '../../../_components';
 import styles from '../../utils/PersonalStyles';
 import {Strings} from '../../../../themes';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -40,7 +45,10 @@ import {useNavigation} from '@react-navigation/native';
 import {getLocation} from '../../../Home/utils/Permissions';
 import {
   DeleteAddressItem,
+  EditAddressItem,
   createAddress,
+  editAddress,
+  fetchAddress,
 } from '../../utils/PersonalServerRequests';
 //changed
 const Address = () => {
@@ -91,8 +99,8 @@ const Address = () => {
     //   type:0,
     //   verify:false
     // });
-    const [images,setImages]=useState([]);
-    const object = isEdit
+    const [images, setImages] = useState([]);
+    const [object,setEditObject] =useState(isEdit
       ? obj.address_list[obj.selected_ind]
       : {
           address: '',
@@ -110,16 +118,21 @@ const Address = () => {
           state: '',
           type: 0,
           verify: false,
-        };
+        })
 
-
-    useEffect(()=>{
-      let arr=images;
-      arr.push(Photo);
-      setImages(arr);
-      console.log("Images =",images);
-      console.log("PHOTOTS",Photo);
-    },[Photo]);
+    // useEffect(()=>{
+    //   let arr=images;
+    //   arr.push(Photo);
+    //   setImages(arr);
+    //   console.log("Images =",images);
+    //   console.log("PHOTOTS",Photo);
+    // },[Photo]);
+    useEffect(() => {
+      if (isEdit) {
+        setErrorArray([1, 1, 1, 1, 1, 1, 1, 1]);
+        setShowError([0, 0, 0, 0, 0, 0, 0, 0]);
+      }
+    }, [isEdit]);
     const [addressCategory, setAddressCategory] = useState(
       object.type == 'home' ? 1 : 0,
     );
@@ -127,7 +140,6 @@ const Address = () => {
     const [showError, setShowError] = useState([0, 0, 0, 0, 0, 0, 0, 0]);
     const [state, setState] = useState(object.state);
     const [district, setDistrict] = useState(object.district);
-
     const [country, setCountry] = useState(object.country);
     const [title, setTitle] = useState(object.custom_title);
     const [city, setCity] = useState(object.city);
@@ -210,24 +222,24 @@ const Address = () => {
       const addressObj = obj;
       console.log('OBJ=', addressObj);
       try {
-        console.log('ADD=', addressObj);
-        const tempObj = {
-          id: 1,
-          nickname: addressObj.custom_title,
-          type: addressObj.type,
-          address: `${
-            addressObj.door_number != '' ? addressObj.door_number : ''
-          }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
-            addressObj.city != '' ? ',' + addressObj.city : ''
-          }${addressObj.district != '' ? ',' + addressObj.district : ''}${
-            addressObj.state != '' ? ',' + addressObj.state : ''
-          }${addressObj.country != '' ? ',' + addressObj.country : ''}${
-            addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
-          }`,
+        // console.log('ADD=', addressObj);
+        // const tempObj = {
+        //   id: Math.random() * 100,
+        //   nickname: addressObj.custom_title,
+        //   type: addressObj.type,
+        //   address: `${
+        //     addressObj.door_number != '' ? addressObj.door_number : ''
+        //   }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
+        //     addressObj.city != '' ? ',' + addressObj.city : ''
+        //   }${addressObj.district != '' ? ',' + addressObj.district : ''}${
+        //     addressObj.state != '' ? ',' + addressObj.state : ''
+        //   }${addressObj.country != '' ? ',' + addressObj.country : ''}${
+        //     addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
+        //   }`,
 
-          verify: addressObj.isPrimary,
-          images: [],
-        };
+        //   verify: addressObj.isPrimary,
+        //   images: [],
+        // };
         const bodyData = {
           address_list: [
             {
@@ -248,61 +260,44 @@ const Address = () => {
             },
           ],
         };
+        console.log(
+          'CACCESS TOKEN=',
+          CurrentProfile.access_token,
+          'BODY =',
+          bodyData,"ADDRESS",
+          addressObj,
+        );
+          
         const res = await createAddress(CurrentProfile.access_token, bodyData);
-        console.log(res.data[0]);
-        let arr = [...addressData, tempObj];
-        setAddressData(arr);
-        dispatch(set_AddressSlice_AddressList(arr));
+        console.log('SUCCESS', res.data[0]);
+        // let arr = [...addressData, tempObj];
+        // setAddressData(arr);
+        // dispatch(set_AddressSlice_AddressList(arr));
       } catch (err) {
         console.log('handleSaveErr', err);
       }
     };
     const handleEdit = async () => {
       try {
-          const addressObj = obj;
-          console.log('ADD=', addressObj);
-          const tempObj = {
-            id: 1,
-            nickname: addressObj.custom_title,
-            type: addressObj.type,
-            address: `${
-              addressObj.door_number != '' ? addressObj.door_number : ''
-            }${addressObj.landmark != '' ? ',' + addressObj.landmark : ''}${
-              addressObj.city != '' ? ',' + addressObj.city : ''
-            }${addressObj.district != '' ? ',' + addressObj.district : ''}${
-              addressObj.state != '' ? ',' + addressObj.state : ''
-            }${addressObj.country != '' ? ',' + addressObj.country : ''}${
-              addressObj.pin_number != '' ? '-' + addressObj.pin_number : ''
-            }`,
-  
-            verify: addressObj.isPrimary,
-            images: [],
-          };
-          const bodyData = {
-            address_list: [
-              {
-                address_image: '',
-                address_id: '',
-                address_type: addressObj.type,
-                custom_title: addressObj.custom_title,
-                address: addressObj.door_number,
-                pin_code: addressObj.pin_number,
-                city: addressObj.city,
-                district: addressObj.district,
-                state: addressObj.state,
-                country: addressObj.country,
-                landmark: addressObj.landmark,
-                longitude: addressObj.longitude,
-                latitude: addressObj.latitude,
-                is_primary: addressObj.isPrimary,
-              },
-            ],
-          };
-          const res = await createAddress(CurrentProfile.access_token, bodyData);
-          console.log(res.data[0]);
-          let arr = [...addressData, tempObj];
-          setAddressData(arr);
-          // dispatch(set_AddressSlice_AddressList(arr));
+      
+        const queryParams={
+            address_id:editID,
+          address_type:addressCategory == 1 ? 'home' : 'office',
+          custom_title:title,
+          address:dno,
+          pincode:pinCode,
+          city: city,
+          district:district,
+          state:state,
+          country:country,
+          landmark:landmark,
+          longitude:longitude,
+          latitude:latitude,
+          is_primary:primary?1:0,
+        }
+        console.log("FINAL EDIT=",queryParams);
+        const res = await EditAddressItem(CurrentProfile.access_token, queryParams);
+       
       } catch (err) {
         console.log('ERROR WHILE EDITING ADDRESS', err);
       }
@@ -323,6 +318,7 @@ const Address = () => {
 
     const setDispatchValues = () => {
       dispatch(set_AddressSlice_Country(country));
+      dispatch(set_AddressSlice_AddressID(editID));
       dispatch(set_AddressSlice_DoorNumber(dno));
       dispatch(set_AddressSlice_city(city));
       dispatch(set_AddressSlice_custom_title(title));
@@ -343,6 +339,27 @@ const Address = () => {
         throw err;
       }
     };
+
+    const setEditedValues=()=>{
+     const temp= {
+        address: address,
+        city:city,
+        country: country,
+        custom_title:title,
+        district: district,
+        door_no: dno,
+        id: editID,
+        images: [],
+        landmark: landmark,
+        latitude: latitude,
+        longitude: longitude,
+        pin_code: pinCode,
+        state: state,
+        type: addressCategory==1?'home':'office',
+        verify: primary==1?true:false,
+      }
+      setEditObject(temp);
+    }
 
     return (
       <View>
@@ -689,13 +706,10 @@ const Address = () => {
             <Pressable
               onPress={() => {
                 // navigation.navigate('Recording', {mode: 'isProfile'});
-              
-                  initialBottomSheet();
+
+                initialBottomSheet();
                 //  navigation.navigate('Recording',{mode:'isProfile'})
-          
-              }}
-              
-              >
+              }}>
               <View
                 style={{
                   marginBottom: 10,
@@ -720,43 +734,45 @@ const Address = () => {
                 />
               </View>
             </Pressable>
-           <View style={{flexDirection:'row'}}>
-            { 
-            images.map((data,index)=>{
-              console.log("Data=",data);
-              if(data && data!=undefined && data!='')
-              return(
-              <View
-              key={index}
-              style={{
-                marginBottom: 10,
-                // height: responsiveHeight(10),
-                // width: responsiveWidth(25),
-                borderRadius: 10,
-                borderWidth: 2,
-                borderColor: 'grey',
-                borderStyle: 'dashed',
-                justifyContent: 'center',
-                alignItems: 'center',
-                marginRight: 10,
-              }}>
-             <Image
-               source={{uri:data}}
-               style={{
-                height: responsiveHeight(10),
-                width: responsiveWidth(25),
-               
-               }}
-             />
-              </View>
-              )
-            })
-           }
-           </View>
+            <View style={{flexDirection: 'row'}}>
+              {images.map((data, index) => {
+                console.log('Data=', data);
+                if (data && data != undefined && data != '')
+                  return (
+                    <View
+                      key={index}
+                      style={{
+                        marginBottom: 10,
+                        // height: responsiveHeight(10),
+                        // width: responsiveWidth(25),
+                        borderRadius: 10,
+                        borderWidth: 2,
+                        borderColor: 'grey',
+                        borderStyle: 'dashed',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        marginRight: 10,
+                      }}>
+                      <Image
+                        source={{uri: data}}
+                        style={{
+                          height: responsiveHeight(10),
+                          width: responsiveWidth(25),
+                        }}
+                      />
+                    </View>
+                  );
+              })}
+            </View>
           </ScrollView>
         </View>
-        <View style={{marginTop:10,justifyContent:'center'}}>
-          <Text style={{color:Color.white}}>Are you currently living in this address?</Text>
+        <View
+          style={{
+            marginTop: 10,
+            justifyContent: 'flex-start',
+            flexDirection: 'row',
+          }}>
+          {/* <Text style={{color:Color.white}}>Are you currently living in this address?</Text>
           <View style={{flexDirection:'row',padding:10,marginHorizontal:20,margin:5}}>
             <Pressable onPress={()=>{
                setPrimary(1);
@@ -768,26 +784,49 @@ const Address = () => {
             }}>
             <Text style={{backgroundColor:!primary?Color.badge_bg:Color.textfieldContainer,borderRadius:50,padding:10,marginLeft:30}}>No</Text>
             </Pressable>
-          </View>
+          </View> */}
+          <Pressable
+            onPress={() => {
+              setPrimary(!primary);
+            }}
+            style={{justifyContent: 'flex-start', alignItems: 'center'}}>
+            <View
+              style={{
+                padding: 10,
+                borderRadius: 10,
+                backgroundColor: primary
+                  ? Color.badge_bg
+                  : Color.textfieldContainer,
+                margin: 10,
+              }}>
+              <Text>Default</Text>
+            </View>
+          </Pressable>
         </View>
         <View
-          style={isEdit?{
-            flex: 1,
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            marginVertical: 10,
-          }:null}
-          >
-         {isEdit?( <Pressable
-            style={{justifyContent: 'flex-start'}}
-            onPress={() => {
-              handleDelete();
-              setAddAddress(false);
-            }}>
-            <View style={{...styles.mediumButton, backgroundColor: Color.red}}>
-              <Text>Delete</Text>
-            </View>
-          </Pressable>):null}
+          style={
+            isEdit
+              ? {
+                  flex: 1,
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  marginVertical: 10,
+                }
+              : null
+          }>
+          {isEdit ? (
+            <Pressable
+              style={{justifyContent: 'flex-start'}}
+              onPress={() => {
+                handleDelete();
+                setAddAddress(false);
+              }}>
+              <View
+                style={{...styles.mediumButton, backgroundColor: Color.red}}>
+                <Text>Delete</Text>
+              </View>
+            </Pressable>
+          ) : null}
           <Pressable
             onPress={() => {
               setArrActive(1, 7);
@@ -811,8 +850,14 @@ const Address = () => {
               setShowError(arr2);
               if (c == 0) {
                 if (!isEdit) {
-                  handleSave(obj);
                   setDispatchValues();
+                  // console.log('EDIT?+=', isEdit);
+                  // console.log('OBJECT=', obj);
+                  handleSave(obj);
+                } else {
+                  // setEditedValues();
+                  // console.log('OBJ IN EDIT', isEdit, object);
+                  handleEdit();
                 }
 
                 setAddAddress(false);
@@ -835,11 +880,13 @@ const Address = () => {
         <Text style={styles.subHeading13}>Logistics | Emergency </Text>
       </Text>
       <HandleBottomSheet
-      containerStyle={{height:responsiveHeight(20)}}
-      bottomSheetRef={refAttachments}
-      height={400}
-      content={<MediaWrapper context={'Address'} callback = {finalBottomSheet}/>}
-      draggableIcon={{backgroundColor: 'grey', width: 100}}
+        containerStyle={{height: responsiveHeight(20)}}
+        bottomSheetRef={refAttachments}
+        height={400}
+        content={
+          <MediaWrapper context={'Address'} callback={finalBottomSheet} />
+        }
+        draggableIcon={{backgroundColor: 'grey', width: 100}}
       />
       {!addAddress ? (
         <Pressable
@@ -930,7 +977,7 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
           <View style={{marginRight: 10, width: '13%'}}>
             <Image
               source={
-                (item.type === 1)
+                item.type === 1
                   ? require('../../assets/icons/building-3.png')
                   : require('../../assets/icons/building.png')
               }
@@ -974,14 +1021,16 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
               marginRight: 10,
               width: '13%',
             }}>
-           {item.verify?( <Image
-              source={require('../../assets/icons/tick-circle.png')}
-              style={{
-                width: 30,
-                height: 30,
-                tintColor: Color.badge_bg,
-              }}
-            />):null}
+            {item.verify ? (
+              <Image
+                source={require('../../assets/icons/tick-circle.png')}
+                style={{
+                  width: 30,
+                  height: 30,
+                  tintColor: Color.badge_bg,
+                }}
+              />
+            ) : null}
           </View>
           {longView && item.verify ? (
             <View style={{width: '77%', justifyContent: 'center'}}>
@@ -1004,6 +1053,7 @@ const AddressCard = ({item, index, setAddAddress, setEdit}) => {
             onPress={() => {
               setEdit(true);
               // setEditValues(item);
+              set_AddressSlice_AddressID(item.id);
               dispatch(set_AddressSlice_SelectedInd(index));
               setAddAddress(true);
             }}
