@@ -106,7 +106,7 @@ const MasterNavigator = () => {
     try{
     let dependantArray= await getDependentUsers(data);
     // dependantArray=[...dependantArray];
-    console.log("DEPENDENT USER ARRAY=",...dependantArray);
+    // console.log("DEPENDENT USER ARRAY=",...dependantArray);
     let mainProfile=await getMainProfile();
     dispatch(setParentProfile(mainProfile));
     dispatch(setCurrentUserProfile(mainProfile));
@@ -114,7 +114,7 @@ const MasterNavigator = () => {
     // const profile=await getUserProfile(selectedItem.access_token,selectedItem.Profile_Picture)
 
     const combinedData=[mainProfile,...dependantArray];
-    console.log("COMBINED DATA",combinedData);
+    // console.log("COMBINED DATA",combinedData);
 
     dispatch(setDependantUsers(combinedData));
   }catch(err){console.log("Fetch ACCESS DEP",err)}

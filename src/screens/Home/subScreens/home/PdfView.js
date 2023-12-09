@@ -7,7 +7,7 @@ import axios from 'axios';
 const PdfView = ({ route, navigation }) => {
     
     const {src,ext} = route.params;
-    console.log("extkjasdddddddddddddddddddd",ext);
+    console.log("ex",ext);
     const convertImageToBase64 = async (imageUri) => {
         try {
           // Read the image file using react-native-fs

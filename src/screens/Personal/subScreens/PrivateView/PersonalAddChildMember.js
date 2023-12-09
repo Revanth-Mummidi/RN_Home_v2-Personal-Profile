@@ -72,16 +72,14 @@ export default function PersonalAddChildMember({selectedGender, bloodGroup}) {
   
     return `${year}-${month}-${day}`;
   }
+  
   const obj = useSelector(state => state.PersonalReducers.add_member);
   const [gender, setGender] = useState('');
   const [selected, setSelected] = useState(obj.blood_group);
   const [dob, setDob] = useState(new Date(obj.date_of_birth));
 
   const [relationShip, setRelationShip] = useState(obj.relation);
-  const [Profession,setProfession]=useState(EditObject.profession);
-  const [Nationality,setNationality]=useState(EditObject.nationality);
-  const [Ethncicity,setEthnicity]=useState(EditObject.ethnicity);
-  const [Religion,setReligion]=useState(EditObject.religion);
+
   const firstName = obj.first_name;
   const lastName = obj.last_name;
 

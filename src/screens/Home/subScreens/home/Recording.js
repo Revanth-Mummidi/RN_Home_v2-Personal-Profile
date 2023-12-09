@@ -14,13 +14,13 @@ import { selectFile } from '../../utils/Permissions';
 import { useDispatch, useSelector } from 'react-redux';
 import { setImageURI } from '../../../../redux/slices/ProfilePicSlice';
 const Recording = ({ isSaved,route} ) => {
-  const  {mode} = route.params
-
+  const mode = useSelector(state => state.screen.uri);
+  const Photo = useSelector(state => state.image.uri);
   // State variables for various functionalities
   const [pickedDocument, setPickedDocument] = useState(null);
   const [isRecording, setIsRecording] = useState(false); // Indicates if video recording is in progress
   const [recordedVideo, setRecordedVideo] = useState(false); // Indicates if video recording is completed
-  const [Photo, setPhoto] = useState(isSaved); // Indicates if a photo is captured
+  // const [Photo, setPhoto] = useState(isSaved); // Indicates if a photo is captured
   const [timer, setTimer] = useState("00:00"); // Keeps track of the recording time
   const [cameraType, setCameraType] = useState(RNCamera.Constants.Type.back); // Camera type (front/back)
   const [flashMode, setFlashMode] = useState(RNCamera.Constants.FlashMode.off); // Flash mode
@@ -172,10 +172,12 @@ const Recording = ({ isSaved,route} ) => {
                  console.log("WITHOUT PREVIEW",data.uri); 
                  nav.goBack();
           }else{
+          dispatch(setImageURI(data.uri));
+          console.log("recording",data.uri)
           nav.navigate('ImagePreview', {
-            imageUri: data.uri,
-            setPhotoCapture: handleSetPhoto,
-            mode:mode
+            // imageUri: data.uri,
+            // setPhotoCapture: handleSetPhoto,
+            // mode:mode
           }); // Navigate to the ImagePreviewScreen
         }
       }
@@ -386,7 +388,7 @@ const Recording = ({ isSaved,route} ) => {
           </View>}
 
           
-          <View style={styles.topSaved}>
+          {/* <View style={styles.topSaved}>
           {recordedVideo ? (
                 <Text style={styles.successText}>Video saved to gallery</Text> 
               ) : null}
@@ -394,7 +396,7 @@ const Recording = ({ isSaved,route} ) => {
                
                 <Text style={styles.successText}>Photo saved to gallery</Text>
               ) : null}
-              </View>  
+              </View>   */}
              
           <View style={styles.buttonContainer}>
             

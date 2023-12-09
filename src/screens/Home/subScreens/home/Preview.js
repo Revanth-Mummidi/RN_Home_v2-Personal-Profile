@@ -145,7 +145,9 @@ export const convertImageToBase64 = async (imageUri) => {
 };
 
 const ImagePreview = ({ route, navigation }) => {
-  const { imageUri,setPhotoCapture,mode } = route.params;
+  // const { imageUri,setPhotoCapture,mode } = route.params;
+   const imageUri=useSelector((state)=>state.image.uri)
+   const mode =useSelector((state)=>state.screen.uri)
    const dispatch = useDispatch();
   const uploadPhotoToS3 = async (imageUri) => {
     try {
@@ -223,7 +225,7 @@ const ImagePreview = ({ route, navigation }) => {
         dispatch(setImageURI(base64Image));
         // console.log(base64Image);
         navigation.pop();
-        navigation.pop();
+        // navigation.pop();
         return;
       }
       // await CameraRoll.save(imageUri, { type: 'photo' });
@@ -240,7 +242,8 @@ const ImagePreview = ({ route, navigation }) => {
   };
 
   const discardImage = () => {
-    setPhotoCapture(false);
+    // setPhotoCapture(false);
+    dispatch(setImageURI(""));
     navigation.goBack() // Navigate back to the recording screen without saving
   };
 

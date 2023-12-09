@@ -42,6 +42,7 @@ import { parseDateString } from '../../utils/Conversions';
 import { responsiveFontSize, responsiveHeight, useResponsiveHeight } from '../../../../themes/ResponsiveDimensions';
 import getRandomLGColor from '../../../_components/uiStyles/GetRandomLGColors';
 import { accessDependent } from '../../utils/PersonalServerRequests';
+
 // import { Modal } from 'react-native-paper';
 
 const initialState = {
@@ -84,7 +85,6 @@ const PrivateApercu = ({ imageURL }) => {
     state => state.dependant_users,
   ).parent_profile;
   const CurrentProfile = useSelector(state => state.PersonalReducers.general_states).current_user_profile;
-
   
   // useEffect(() => {
   //   const fetchColors = async () => {
@@ -526,9 +526,12 @@ const PrivateApercu = ({ imageURL }) => {
                 );
               })}
             </ScrollView>
+           
           </View>
         );
       })}
+    
+          
     </ScrollView>
   );
 };

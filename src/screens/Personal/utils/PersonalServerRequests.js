@@ -57,7 +57,7 @@ export const addDependent = async (queryParams) => {
       Authorization:`Bearer ${authToken}`
     }
   }).then(res => {
-    console.log("ADDED",res.data);
+    console.log("ADDED");
     return res;
   });
 };
@@ -145,7 +145,7 @@ export const getDependentUsers=async(authTokenArray)=>{
           resultArray.push(response.data);
           console.log("DATA IN ARRAY=",response.data.user_first_name);
     }
-    console.log("RESULT ARRAY IN GET",resultArray);
+    console.log("RESULT ARRAY IN GET");
     return resultArray;
   }
   catch(err){
@@ -171,7 +171,7 @@ export const getMainProfile = async () => {
       Authorization:`Bearer ${authToken}`
     }
   }).then(res => {
-    console.log("ADDED",res.data);
+    // console.log("ADDED",res.data);
     return res.data;
   });
 }catch(err){
@@ -215,6 +215,7 @@ export const uploadtoAWS=async(authToken,base64Code,queryParams)=>{
       base64_code:base64Code
     };
     const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+   
     return await HomeAPI({
       method: 'POST',
       url: fullUrl,
@@ -239,9 +240,11 @@ export const saveDocument=async(authToken,queryParams)=>{
     if(!authToken){
       authToken=await getApiKey();
     }
-    const ApiUrl=Base_URLs.UploadToAWS_URL;
+    const ApiUrl=Base_URLs.SaveDocument_URL;
+
     const body={}
     const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    
     return await HomeAPI({
       method: 'POST',
       url: fullUrl,
@@ -267,7 +270,9 @@ export const UploadProfileVerification=async(authToken,queryParams)=>{
     }
     const ApiUrl=Base_URLs.ProfileVerification_URL;
     const body={};
+    console.log("aws Token",authToken,queryParams)
     const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    console.log("fullUrl",fullUrl)
     return await HomeAPI({
       method: 'POST',
       url: fullUrl,

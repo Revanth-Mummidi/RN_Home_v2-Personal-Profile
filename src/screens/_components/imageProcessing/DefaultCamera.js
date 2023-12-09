@@ -8,24 +8,28 @@ import { convertImageToBase64 } from '../../Home/subScreens/home/Preview';
 const DefaultCamera = () => {
     const dispatch = useDispatch();
     const context = useSelector(state => state.screen.uri);
-    console.log(context , "FROM CAMER")
+    console.log(context , "FROM CAMERA")
     const navigation = useNavigation();
     async function Imgdata(){
+        try{
         const res = await selectImageFromCamera();
         console.log(res,"FROM THE DEFAULT CAMERA OUT OF THE BOX");
          if(res.didCancel == true){
             if(context != 'Address'){
-            navigation.goBack();
+               navigation.goBack();
             }
             return '';
          }else{
             console.log(res,"FROM THE DEFAULT CAMERA");
             if(context == 'Address'||context == 'isProfile'){
-                const base64=await convertImageToBase64(res.assets[0].uri)
+                const base64=await convertImageToBase64(res[0].uri)
                 dispatch(setImageURI(base64));
-                console.log('GOback',res.assets[0].uri) 
+                console.log('GOback',res[0].uri) 
+                navigation.goBack();
             }
-         }
+         }}catch(err){
+            console.log("error at image capture",err)
+        }
     }
     useEffect(()=>{
         // let a=Imgdata();
@@ -34,25 +38,25 @@ const DefaultCamera = () => {
         Imgdata();
     },[]);
 
-    if(context == 'Address'){
-        console.log('GOback')
-        navigation.goBack();
-    }
+    // if(context == 'Address'){
+    //     console.log('GOback')
+    //     navigation.goBack();
+    // }
 
 
-    else if(context != 'GlobalDocs'){
-        return (
-            <View>
-              <Text>DefaultCamera</Text>
-            </View>
-          )
-    }else{
-        return(
-            <View style = {{height:300,width:300,backgroundColor:'red'}}>
-            <Text>DefaultCamera</Text>
-          </View>
-        )
-    }
+    // else if(context != 'GlobalDocs'){
+    //     return (
+    //         <View>
+    //           <Text>DefaultCamera</Text>
+    //         </View>
+    //       )
+    // }else{
+    //     return(
+    //         <View style = {{height:300,width:300,backgroundColor:'red'}}>
+    //         <Text>DefaultCamera</Text>
+    //       </View>
+    //     )
+    // }
  
 }
 

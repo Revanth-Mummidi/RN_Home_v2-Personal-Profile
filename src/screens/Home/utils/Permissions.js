@@ -219,31 +219,34 @@ export async function requestCameraPermission () {
     return newSelectedImages;
   };
 
- export  async function selectImageFromCamera()  {
-    const options = {
-      title: 'Select Image',
-      storageOptions: {
-        skipBackup: true,
-        path: 'images',
-      },
-    };
-
-   const res = await launchCamera(options, (response) => {
-      if (response.didCancel) {
-        console.log('User cancelled camera picker');
-      } else if (response.error) {
-        console.log('ImagePicker Error: ', response.error);
-      } else if (response.customButton) {
-        console.log('User tapped custom button: ', response.customButton);
-      } else {
-        console.log(response.assets)
-         return response.assets;
-      }
-      return response;
+  export function selectImageFromCamera() {
+    return new Promise((resolve, reject) => {
+      const options = {
+        title: 'Select Image',
+        storageOptions: {
+          skipBackup: true,
+          path: 'images',
+        },
+      };
+  
+      launchCamera(options, (response) => {
+        if (response.didCancel) {
+          console.log('User cancelled camera picker');
+          reject('User cancelled camera picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+          reject(response.error);
+        } else if (response.customButton) {
+          console.log('User tapped custom button: ', response.customButton);
+          reject(`User tapped custom button: ${response.customButton}`);
+        } else {
+          console.log(response.assets);
+          resolve(response.assets);
+        }
+      });
     });
-
-    return res;
-  };
+  }
+  
 
   
 

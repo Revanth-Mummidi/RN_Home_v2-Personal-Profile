@@ -8,7 +8,6 @@ import { setScreen } from '../../../redux/slices/MediaSlice';
 
 const MediaWrapper = ({context,callback}) => {
 const dispatch = useDispatch();
-
     const handleGalleryPress = () => {
       dispatch(setScreen(context));
         navigation.navigate('GalleryPicker');
@@ -20,17 +19,16 @@ const dispatch = useDispatch();
         callback();
     }
     const  handleDocumentPress = () => {
-        navigation.navigate('DocumentPickers');
+      dispatch(setScreen(context));
+        navigation.navigate('DocumentPicker');
         callback();
     }
     const handleScanerPress = () =>{
+      dispatch(setScreen(context));
         navigation.navigate('BarcodeScanner');
         callback();
     }
-
-
     const navigation = useNavigation();
-
         return (
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', flexWrap: 'wrap', backgroundColor: '#3498db', padding: 16, borderRadius: 10, }}>
               {/* Gallery Icon */}
@@ -58,14 +56,6 @@ const dispatch = useDispatch();
               </TouchableOpacity>
             </View>
           );
-    
-
-    
-  return (
-    <View>
-      <Text>{context}</Text>
-    </View>
-  )
 }
 const styles = StyleSheet.create({
     container: {

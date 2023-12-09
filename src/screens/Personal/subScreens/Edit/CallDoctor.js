@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   TextInput,
+  PermissionsAndroid,
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import {
@@ -232,7 +233,7 @@ const CallDoctor = () => {
       </View>
     );
   };
-
+  const [permission,setPermission]=useState();
   return (
     <View>
       <HandleBottomSheet
@@ -249,12 +250,20 @@ const CallDoctor = () => {
             setMod={setMod}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}
+            // permission={permission}
           />
       <TileCardContainer
         title={'Emergency Doctors'}
         showIcon={true}
-        onPressIcon={() => {
+        onPressIcon={async() => {
+          // const perm = await PermissionsAndroid.request(
+          //   PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+          // );
+          // setPermission(perm);
+          // if(perm=='granted'){
           setMod(true);
+           refAddFamily.current.close();
+          // }
           // refAddFamily.current.open();          
         }}>
         <FlatList
@@ -267,7 +276,7 @@ const CallDoctor = () => {
           key={'flat list'}
           data={emergencyFriends || []}
           renderItem={({item, index}) => renderDoctorData(item, index)}
-          keyExtractor={item => item.id}
+          // keyExtractor={item => item.id}
         />
       </TileCardContainer>
     </View>

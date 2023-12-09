@@ -7,6 +7,7 @@ import {
   Image,
   Pressable,
   TextInput,
+  PermissionsAndroid,
 } from 'react-native';
 import React, {useRef, useState, useEffect} from 'react';
 import {
@@ -215,7 +216,7 @@ const CallFamily = () => {
     console.log("ERROR IN EMERGENCY CONTACT=",err);
   }
   }
-
+  const [permission,setPermission]=useState('');
   const addContact = (refAddFamily) => {
     // useEffect(()=>{
     //  refAddFamily.current.close();
@@ -318,19 +319,30 @@ const CallFamily = () => {
         height={500}
         draggableIcon={{backgroundColor: Color.BLACK, width: 100}}
       />
-        <ContactsList
+        {mod?(<ContactsList
             mod={mod}
             setMod={setMod}
             refer={refAddFamily}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}
-          />
+            permission={permission}
+          />):null}
       <TileCardContainer
         title={'Emergency Contacts'}
         showIcon={true}
         onPressIcon={() => {
-          setMod(true);
+          // const perm = await PermissionsAndroid.request(
+          //   PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+          // );
+          // setPermission(perm);
+          // if(perm=='granted'){
+            setMod(true);
            refAddFamily.current.close();
+          // }
+          // else
+          // {
+          //   setMod(false);
+          // }
           // refAddFamily.current.open();          
         }}>
         <FlatList

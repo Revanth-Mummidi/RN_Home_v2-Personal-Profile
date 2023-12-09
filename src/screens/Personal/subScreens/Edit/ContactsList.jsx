@@ -142,10 +142,14 @@ const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{},creat
 
   async function getAllContacts() {
     try {
-      const permission = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
-      );
+     if(mod){
+     const permission= await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.READ_CONTACTS,
+        );
+      
       if (permission === 'granted') {
+        console.log("PERMISSION SET");
+
         const allContacts = await Contacts.getAll();
         const contactDict = {};
         const contactSections = [];
@@ -172,10 +176,17 @@ const ContactsList = ({mod, setMod,refer,setPhoneNumber,setUserName=()=>{},creat
         contactSections.sort((a, b) => a.title.localeCompare(b.title));
 
         return contactSections;
-      } else {
-        // console.log('PERMISSIONOT GRANEFFENSOJFNKJFN');
-        return [];
+      
       }
+    else
+    {
+      console.log("FALSE",permission);
+      return [];
+    }
+  }
+    else{
+      return [];
+    }
     } catch (error) {
       console.log(error);
       return [];

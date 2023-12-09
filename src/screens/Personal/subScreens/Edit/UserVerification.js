@@ -129,13 +129,15 @@ const UserVerification = refScreens => {
     }
   }, [verified_text]);
   const handleVerification = async () => {
+    const currentdate=new Date()
     try {
       const base64=image
+      // console.log(image)
       var queryParams = {
         document_category: 'personal',
         document_type: 'image',
         file_folder: 'document',
-        file_name: 'MyIdentity',
+        file_name:  `${currentdate.getHours()+":"+ currentdate.getMinutes()+":"  + currentdate.getSeconds()}`,
         view_option: 'public',
       };
       const res = await uploadtoAWS(
@@ -158,14 +160,13 @@ const UserVerification = refScreens => {
 
         if (res1) {
           queryParams = {
-            eh_file_id: res1.eh_file_id,
-            eh_document_id: res1.eh_document_id,
-            //Add pin number here
+            eh_file_id: res1.data.eh_file_id,
+            eh_document_id: res1.data.eh_document_id,
+           verification_document_number:verificationObject.verification_pin,
             verification_type: 'identity',
           };
           const res2 = await UploadProfileVerification(
             CurrentProfile.access_token,
-            base64,
             queryParams,
           );
           console.log('VERIFY res', res2);

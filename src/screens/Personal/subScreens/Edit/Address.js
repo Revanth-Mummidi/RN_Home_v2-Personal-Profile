@@ -133,8 +133,8 @@ const Address = () => {
       arr.push(Photo);
       setImages(arr);
 
-      console.log("Images =",images);
-      console.log("PHOTOTS",Photo);
+      // console.log("Images =",images);
+      // console.log("PHOTOTS",Photo);
       }
     },[Photo]);
     useEffect(() => {
@@ -283,7 +283,7 @@ const Address = () => {
         );
           
         const res = await createAddress(CurrentProfile.access_token, bodyData);
-        await fetchDependentUsers();
+        // await fetchDependentUsers();
         console.log('SUCCESS', res.data[0]);
         // let arr = [...addressData, tempObj];
         // setAddressData(arr);
@@ -771,7 +771,7 @@ const Address = () => {
             </Pressable>
             <View style={{flexDirection: 'row'}}>
               {images.map((data, index) => {
-                console.log('Data=', data);
+                // console.log('Data=', data);
                 if (data && data != undefined && data != '')
                   return (
                     <View
@@ -970,7 +970,7 @@ const Address = () => {
 
 const AddressCard = ({item, index, setAddAddress, setEdit}) => {
   const [longView, setLongView] = useState(false);
-  console.log('Item=', item);
+  // console.log('Item=', item);
   const styles = getStyles();
   const dispatch = useDispatch();
   const Color = getColor(useSelector(state => state.theme.theme));

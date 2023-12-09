@@ -9,7 +9,7 @@ import {
 } from '../../../_components';
 import getStyles from '../../utils/PersonalStyles';
 const CallHospital = () => {
-  refAddHospital = React.useRef(null);
+  const  refAddHospital = React.useRef(null);
   const styles=getStyles();
   
   const [phoneNumber, setPhoneNumber] = React.useState('');
@@ -115,7 +115,7 @@ const CallHospital = () => {
             // key={'flat list'}
             data={emergencyFriends || []}
             renderItem={({item, index}) => renderDoctorData(item, index)}
-            keyExtractor={item => item.id}
+            // keyExtractor={item => item.id}
           />
         </View>
       </TileCardContainer>

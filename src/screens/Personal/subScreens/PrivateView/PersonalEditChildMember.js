@@ -57,12 +57,13 @@ import {
 import {setCurrentUserProfile} from '../../slices/PersonalProfileStates';
 //Personal add child member
 export default function PersonalEditChildMember() {
-  // console.log("ROUTE=",route.params);
-  // const {EditObject} = route.params;
   const Edit=useSelector(state=>state.PersonalReducers.add_member);
-  // const [EditObject,setEditObject]=useState(Edit.EditObject);
+  function convertToDateObject(dateString) {
+    const [year, month, day] = dateString.split('-');
+    const dateObject = new Date(year, month - 1, day);
+    return dateObject;
+  }
   const EditObject=Edit.EditObject;
-  console.log("EDIT OBJECT",EditObject);
   const Color = getColor(useSelector(state => state.theme.theme));
   const styles = getStyles();
   const dispatch = useDispatch();
@@ -70,13 +71,10 @@ export default function PersonalEditChildMember() {
   const mainProfile = useSelector(
     state => state.dependant_users,
   ).parent_profile;
-  // const CurrentProfile = useSelector(
-  //   state => state.PersonalReducers.general_states,
-  // ).current_user_profile;
   const obj = useSelector(state => state.PersonalReducers.add_member);
   const [gender, setGender] = useState(EditObject.gender);
   const [selected, setSelected] = useState(EditObject.blood_group);
-  const [dob, setDob] = useState(new Date(EditObject.date_of_birth));
+  const [dob, setDob] = useState(new Date(convertToDateObject(EditObject.date_of_birth)));
   const [relationShip, setRelationShip] = useState(EditObject.relation);
   const [Profession,setProfession]=useState(EditObject.profession);
   const [Nationality,setNationality]=useState(EditObject.nationality);

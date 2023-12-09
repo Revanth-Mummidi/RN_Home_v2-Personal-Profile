@@ -5,11 +5,13 @@ import AddressSlice from './AddressSlice';
 import VerificationSlice from './VerificationSlice';
 
 
+
 const PersonalProfileReducers=combineReducers({
    add_member:AddMemberSlice,
    general_states:PersonalProfileStates,
    add_address:AddressSlice,
-   verification_states:VerificationSlice
+   verification_states:VerificationSlice,
+
 })
 
 export default PersonalProfileReducers;
