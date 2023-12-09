@@ -36,7 +36,8 @@ import { setDependantUsers, setDependantUsersEHID, setParentProfile } from '../r
 import { fetchDependentUsers } from '../screens/Personal/utils/DependentUsersRequest.jsx';
 import { setBMIWeight, setCurrentUserProfile } from '../screens/Personal/slices/PersonalProfileStates.jsx';
 import { fetchUserProfileData } from '../screens/Home/utils/HomeServerRequests.js';
-
+import NetInfo from '@react-native-community/netinfo';
+import { setOnline } from '../redux/slices/NetWorkSlice.jsx';
 
 const Stack = createNativeStackNavigator();
 
@@ -141,11 +142,21 @@ const MasterNavigator = () => {
     
      
    }
+   const NetINFO=() => {
+    const unsubscribe = NetInfo.addEventListener(state => {
+      // setIsConnected(state.isConnected);
+      dispatch(setOnline(state.isConnected));
+      // console.log('INTERNET IS', isConnected);
+    });
+
+    // Cleanup the subscription when the component unmounts
+    return () => unsubscribe();
+  };
   React.useEffect(() => {
     initialCheck();
     fetchTheme();
     addLang();
-    
+    NetINFO();
     const subscription = Appearance.addChangeListener(handleChange);
     return () => subscription.remove();
   }, [isUserLoggedIn]);

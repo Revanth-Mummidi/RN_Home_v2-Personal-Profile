@@ -244,14 +244,14 @@ const CallDoctor = () => {
         height={500}
         draggableIcon={{backgroundColor: Color.BLACK, width: 100}}
       />
-        <ContactsList
+       {mod?( <ContactsList
             mod={mod}
             refer={refAddFamily}
             setMod={setMod}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}
             // permission={permission}
-          />
+          />):null}
       <TileCardContainer
         title={'Emergency Doctors'}
         showIcon={true}

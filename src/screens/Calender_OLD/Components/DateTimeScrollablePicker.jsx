@@ -101,7 +101,7 @@ const DateTimeScrollablePicker = ({
               fadeToColor={Color.white}
               style={[
                 {
-                  maxWidth: responsiveWidth(52.8),
+                  maxWidth: responsiveWidth(57),
                   fontFamily: 'Circular Std',
                   height: 130,
                   //   marginVertical: '5%',
@@ -128,7 +128,6 @@ const DateTimeScrollablePicker = ({
             androidVariant="nativeAndroid"
             textColor={txtColor}
             fadeToColor="red"
-            
             textStyle={{backgroundColor: 'blue'}}
             style={{
               maxWidth: responsiveWidth(40),

@@ -11,8 +11,8 @@ import React, {useState, useRef, useEffect} from 'react';
 import {Colors, Color} from '../../../themes';
 import {ThemeContext} from '../../../themes/components/ThemeContext';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+
 import {ScrollPicker} from '../../_components';
-import { useSelector } from 'react-redux';
 
 const DurationModal = ({
   duration,
@@ -24,10 +24,9 @@ const DurationModal = ({
   repeatVal,
   AddWeek,
 }) => {
-  // const {theme, toggleTheme} = React.useContext(ThemeContext);
-  // const flatListRef = useRef(null);
-  // const Color = Colors(theme);
-  const Color=useSelector(state=>state.theme).Colors;
+  const {theme, toggleTheme} = React.useContext(ThemeContext);
+  const flatListRef = useRef(null);
+  const Color = Colors(theme);
   const styles = getStyles(Color);
   const setData = (data, selectedIndex) => {
     setRepeatVal(selectedIndex);
@@ -36,7 +35,7 @@ const DurationModal = ({
 
   return (
     <View style={styles.ModalContainer}>
-      <View style={[{...styles.DurationModal},(index==repeatInd)?{borderColor:Color.calend_newtask_endComponent_bgColor,borderWidth:0.4}:null]}>
+      <View style={styles.DurationModal}>
         <View style={{flex: 1, flexDirection: 'column'}}>
           <Pressable
            >
@@ -45,25 +44,23 @@ const DurationModal = ({
                 flexDirection: 'row',
                 justifyContent: 'center',
                 paddingVertical: 10,
-                // backgroundColor: '#171717',
-                backgroundColor:Color.calend_newtask_endComponent_bgColor,
+                backgroundColor: '#171717',
                 // ...styles.container,
-                overflow:'hidden'
               }}>
               <View style={{flexDirection: 'row'}}>
                 {index == 3 ? (
                   <View
                     style={{
-                      width: 70,
+                      width: 110,
                       height: 20,
                       backgroundColor: 'brown',
                       position: 'absolute',
                       top: 0,
-                      left: -70,
+                      left: -90,
                       zIndex: 999,
                       justifyContent: 'center',
                       alignItems: 'center',
-                      transform: [{rotate: '-50deg'}],
+                      transform: [{rotate: '-45deg'}],
                     }}>
                     <Text style={{fontSize: 10, marginLeft: 5}}>30 days</Text>
                   </View>
@@ -78,7 +75,7 @@ const DurationModal = ({
                   <MaterialIcons
                     name="check-circle"
                     size={20}
-                    color={Color.textfield_fontInactive}
+                    style={{color: '#748E63'}}
                   />
                 </View>
               ) : null}
@@ -95,7 +92,7 @@ const DurationModal = ({
               alignItems: 'center',
               justifyContent: 'center',
 
-              backgroundColor: Color.calend_newtask_card_bgColor,
+              backgroundColor: '#BBBBBB',
             }}>
             <View style={{width: '100%'}}>
               <View style={{alignItems: 'center'}}>
@@ -108,7 +105,7 @@ const DurationModal = ({
                       <MaterialIcons
                         size={20}
                         name="add-circle"
-                        color={Color.calend_newtask_endComponent_bgColor}
+                        style={{color: '#18122B'}}
                       />
                     </Pressable>
                   </View>
@@ -121,7 +118,7 @@ const DurationModal = ({
                   }}
                   dataSource={duration}
                   wrapperHeight={100}
-                  HighlightColour={Color.calend_newtask_endComponent_bgColor}
+                  HighlightColour={'#171717'}
                   selectedFontColor={'white'}
                   selectedBackgroundColor={'#48CAE4'}
                   fontSize={15}
@@ -130,7 +127,6 @@ const DurationModal = ({
                   wrapperColor="transparent"
                   itemHeight={40}
                   highlightColor="#d8d8d8"
-                  
                   highlightBorderWidth={0}
                 />
               </View>

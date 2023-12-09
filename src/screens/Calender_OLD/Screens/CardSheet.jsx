@@ -12,17 +12,8 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import PushNotification from 'react-native-push-notification';
-import React, {useState, useEffect, useRef, useSyncExternalStore} from 'react';
-import {useDispatch, useSelector} from 'react-redux';
+import React, {useState, useEffect, useRef} from 'react';
 import LottieView from 'lottie-react-native';
-import {WeeksArr, durationFormat, getWeekNumber} from '../utils/Formats';
-import {setEditingObject, setIsEdit} from '../slices/ViewCardSlice';
-import {responsiveHeight} from '../../../themes/ResponsiveDimensions';
-import {ScrollPicker} from '../../_components';
-import NewRepeatModal, { ScrollableComponent } from '../Components/NewRepeatModal';
-import { getColor } from '../../../themes/GetColor';
-import MultiScrollPicker from '../Components/MultiScrollPicker';
-import { DeleteCompleteEvent, DeleteSingleEvent, DeleteSingleOccurance } from '../utils/CalendarServerRequests';
 const HEIGHT = Dimensions.get('screen').height;
 const item = {
   date: '1 Jan',
@@ -44,14 +35,10 @@ const item = {
 const CardSheet = ({refCreateTask, refViewTask}) => {
   const [isDone, setDone] = useState(item.done);
   const [showDone, setShowDone] = useState(item.done);
-  const dispatch = useDispatch();
   const OpenBottomSheet = () => {
     //  console.log("Clicked Edit");
-    dispatch(setIsEdit(true));
-    
     refCreateTask.current.open();
   };
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
   return (
     <>
       <View
@@ -60,21 +47,20 @@ const CardSheet = ({refCreateTask, refViewTask}) => {
         <UserOptions
           isDone={isDone}
           setDone={setDone}
-          setShowDone={setShowDone}
           OpenBottomSheet={OpenBottomSheet}
         />
-        {isDone ? <ShowDone /> : null}
+        {showDone ? <ShowDone /> : null}
         <Title />
-        {/* <Location />
+        <Location />
         <Description />
-        <Assessment /> */}
+        <Assessment />
         <Notes />
-        <DeleteReminder refViewTask={refViewTask} />
-        {ItemObj.priority == '2' ? <HighPriority /> : null}
+        <DeleteReminder setDone={setDone} setShowDone={setShowDone} />
+        {item.HighPriority ? <HighPriority /> : null}
       </View>
-      <Modal transparent visible={showDone}>
+      <Modal transparent visible={isDone}>
         <DoneComponent
-          isDone={showDone}
+          isDone={isDone}
           setDone={setDone}
           setShowDone={setShowDone}
           title={item.title}
@@ -87,25 +73,6 @@ const CardSheet = ({refCreateTask, refViewTask}) => {
 export default CardSheet;
 
 function DateAndTime() {
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
-  const months = [
-    'Jan',
-    'Feb',
-    'Mar',
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-  ];
-  const date = new Date(ItemObj.confirm_date);
-  const startDate = new Date(date);
-  const minutes = parseInt(ItemObj.duration);
-  const endTime = new Date(startDate.getTime() + minutes * 60000);
   return (
     <View style={{flexDirection: 'column', marginBottom: 20}}>
       <View
@@ -123,7 +90,7 @@ function DateAndTime() {
             padding: 0,
             margin: 0,
           }}>
-          {date.getDate()} {months[date.getMonth()]}
+          {item.date}
         </Text>
         <Text
           style={{
@@ -132,7 +99,7 @@ function DateAndTime() {
             fontWeight: 'bold',
             marginLeft: 10,
           }}>
-          {date.getFullYear()}
+          {item.year}
         </Text>
       </View>
       <View
@@ -142,18 +109,13 @@ function DateAndTime() {
           justifyContent: 'center',
           alignItems: 'baseline',
         }}>
-        <Text style={{color: 'skyblue'}}>{WeeksArr[date.getDay()]}</Text>
-        <Text style={{marginLeft: 10}}>
-          {durationFormat(startDate.toLocaleTimeString()) +
-            '-' +
-            durationFormat(endTime.toLocaleTimeString())}
-        </Text>
+        <Text style={{color: 'skyblue'}}>{item.week}</Text>
+        <Text style={{marginLeft: 10}}>{item.Time}</Text>
       </View>
     </View>
   );
 }
 function Title() {
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
   return (
     <View
       style={{
@@ -163,21 +125,12 @@ function Title() {
         borderRadius: 13,
       }}>
       <Text style={{fontSize: 15, fontWeight: '700', color: 'white'}}>
-        {ItemObj.event_name}
+        {item.title}
       </Text>
     </View>
   );
 }
-function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
-  const [isShow, setShow] = useState(false);
-  const Color = getColor(useSelector(state => state.theme.theme));
-  useEffect(() => {
-    setDone(isShow);
-    if (isShow) {
-      setShowDone(true);
-    }
-  }, [isShow]);
+function UserOptions({isDone, setDone, OpenBottomSheet}) {
   useEffect(() => {
     createChannels();
   }, []);
@@ -197,7 +150,7 @@ function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
       channelId: 'test-channel',
       title: 'Reminder',
 
-      message: ItemObj.event_name,
+      message: item.title,
       actions: ['Snooze', 'Done'],
       date: new Date(Date.now()),
       allowWhileIdle: true,
@@ -224,37 +177,6 @@ function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
       actions: ['Snooze', 'Done'],
     });
   };
-  const [isDefer, setDefer] = useState(false);
-  const hour = [
-    '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', '23',
-  ];
-  const day = [
-    '00', '01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12', '13', '14', '15', '16', '17', '18', '19', '20',
-    '21', '22', '23','24', '25', '26', '27', '28', '29', '30', '31',
-  ];
-  const week = ['00', '01', '02', '03', '04', '05', '06', '07'];
-  const DATA = [
-    {
-      title: 'Week',
-      data: week,
-    },
-    {
-      title: 'Day',
-      data: day,
-    },
-    {
-      title: 'Hour',
-      data: hour,
-    },
-  ];
-  const [hr,setHr]=useState(0);
-  const [wk,setWk]=useState(0);
-  const [dy,setDy]=useState(0);
-  const [ind,setInd]=useState(0);
-  useEffect(()=>{
-   console.log("ht,day,week=",hr,wk,dy);
-  },[dy,wk,hr]);
   return (
     <View
       style={{flex: 1, flexDirection: 'row', justifyContent: 'space-between'}}>
@@ -276,7 +198,7 @@ function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
             style={{height: 40, width: 40, borderRadius: 40}}
           />
 
-          <Text>{ItemObj.event_by} </Text>
+          <Text>{item.username}</Text>
         </View>
       </View>
 
@@ -328,8 +250,7 @@ function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
           <Pressable
             onPress={() => {
               console.log('Alarm');
-              setDefer(true);
-              // handleNotification();
+              handleNotification();
             }}>
             <MaterialIcons
               name="alarm"
@@ -367,56 +288,21 @@ function UserOptions({isDone, setDone, setShowDone, OpenBottomSheet}) {
           }}>
           <Pressable
             onPress={() => {
-              // if (isDone == false)
-              // setDone(isDone);
-              setShow(!isShow);
+              if (isDone == false) setDone(true);
             }}>
             <MaterialIcons
-              name={isShow ? 'close' : 'check'}
+              name="check"
               size={20}
               style={{
                 padding: 10,
                 borderRadius: 40,
-                backgroundColor: isShow ? 'brown' : '#286BBC',
+                backgroundColor: '#286BBC',
               }}
             />
           </Pressable>
-          <Text style={{alignItems: 'center'}}>
-            {isShow ? 'Undone' : 'Done'}
-          </Text>
+          <Text style={{alignItems: 'center'}}>Done</Text>
         </View>
       </View>
-      <Modal
-        visible={isDefer}
-        animationType="slide"
-        transparent
-        onRequestClose={() => {
-          setDefer(false);
-        }}
-        style={{justifyContent: 'center', alignItems: 'center'}}>
-        <View style={{flex:1,justifyContent:'center',alignItems:'center',backgroundColor:'rgba(0,0,0,0.8)'}}>
-       <MultiScrollPicker DATA={DATA} setHr={setHr} setWk={setWk} setDy={setDy}/>
-        <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-          <Pressable onPress={()=>{
-            setHr(0);
-            setWk(0);
-            setDy(0);
-            setDefer(false);
-          }}>
-            <View style={{backgroundColor:Color.more_cancel,borderRadius:10,padding:10,marginRight:50}}>
-              <Text style={{color:Color.textfieldContainer}}>Cancel</Text>
-            </View>
-          </Pressable>
-            <Pressable onPress={()=>{
-              setDefer(false);
-            }}>
-            <View style={{backgroundColor:Color.more_save,borderRadius:10,padding:10}}>
-              <Text style={{color:Color.textfieldContainer}}>Save</Text>
-            </View>
-            </Pressable>
-        </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -510,7 +396,6 @@ function Assessment() {
   );
 }
 function Notes() {
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
   return (
     <View
       style={{
@@ -533,58 +418,25 @@ function Notes() {
           borderColor: 'grey',
           display: 'flex',
           flexDirection: 'column',
-          padding: 10,
           justifyContent: 'flex-start',
         }}>
         <TextInput
           multiline={true}
+          placeholder="Write here..."
           inputMode="text"
-          editable={false}
-          value={ItemObj.details}
-          style={{lineHeight: 5, padding: 0, color: 'white'}}
+          style={{lineHeight: 5, padding: 0}}
         />
       </View>
     </View>
   );
 }
-function DeleteReminder({refViewTask}) {
-  const ItemObj = useSelector(state => state.CalendarReducers.view_card_states);
-  // console.log("ITEM OBJECT",ItemObj,refViewTask);
-  const handleDeleteAll=async()=>{
-    try{
-         const authToken =
-'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
-       const queryParams={
-        event_id:ItemObj.event_id,
-       }
-      const res= await DeleteCompleteEvent(authToken,queryParams);
-      consolelog("RES=",res);
-    }
-    catch(err){
-      console.log("ERROR WHILE DELETING EVENT",err);
-      throw err;
-    }
-  }
-  const handleDelete=async()=>{
-    try{
-       const authToken='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
-       const queryParams={
-        event_occurance_id:ItemObj.event_occurance_id
-       }
-       const res=await DeleteSingleOccurance(authToken,queryParams);
-       console.log(res);
-    }
-    catch(err){
-      console.log("ERROR IN DELETE SINGLE EVENT",err);
-      throw err;
-    }
-  }
+function DeleteReminder({setDone, setShowDone}) {
   return (
-    <View>
-    <Pressable onPress={()=>{
-      handleDelete();
-      refViewTask.current.close();
-    }}>
+    <Pressable
+      onPress={() => {
+        setShowDone(false);
+        setDone(false);
+      }}>
       <View
         style={{
           backgroundColor: 'brown',
@@ -594,26 +446,9 @@ function DeleteReminder({refViewTask}) {
           alignItems: 'center',
           marginTop: 15,
         }}>
-        <Text style={{color: 'white'}}>Delete this event</Text>
+        <Text style={{color: 'white'}}>Delete Reminder</Text>
       </View>
     </Pressable>
-    <Pressable onPress={()=>{
-      handleDeleteAll();
-      refViewTask.current.close();
-    }}>
-      <View
-        style={{
-          backgroundColor: 'brown',
-          borderRadius: 13,
-          padding: 15,
-          justifyContent: 'center',
-          alignItems: 'center',
-          marginTop: 15,
-        }}>
-        <Text style={{color: 'white'}}>Delete all upcoming events</Text>
-      </View>
-    </Pressable>
-    </View>
   );
 }
 function HighPriority() {
@@ -679,8 +514,8 @@ function DoneComponent({isDone, setDone, title, setShowDone}) {
           style={{height: 700, width: 700}}
           autoPlay
           onAnimationFinish={() => {
-            setDone(true);
-            setShowDone(false);
+            setDone(false);
+            setShowDone(true);
           }}
           loop={false}
         />

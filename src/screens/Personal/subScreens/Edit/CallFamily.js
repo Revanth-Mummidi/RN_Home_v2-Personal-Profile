@@ -325,7 +325,7 @@ const CallFamily = () => {
             refer={refAddFamily}
             setUserName={setUserName}
             setPhoneNumber={setPhoneNumber}
-            permission={permission}
+            // permission={permission}
           />):null}
       <TileCardContainer
         title={'Emergency Contacts'}

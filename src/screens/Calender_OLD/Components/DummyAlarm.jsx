@@ -19,6 +19,7 @@ const App = () => {
             channelDescription: "A channel to categorise your notifications",
         });
     };
+    
 
 
     const handleNotification = () => {

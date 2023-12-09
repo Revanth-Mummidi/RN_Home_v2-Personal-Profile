@@ -309,7 +309,7 @@ const PhoneNumber = ({refScreens}) => {
           </Pressable>
         </View>
         {/* <Modal visible={mod} onRequestClose={()=>{setMod(false)}} > */}
-                <ContactsList refer={refScreens} create={false} mod={mod} setMod={setMod} setPhoneNumber={savephnumber}/>
+             {mod?(<ContactsList refer={refScreens} create={false} mod={mod} setMod={setMod} setPhoneNumber={savephnumber}/>):null}
         {/* </Modal> */}
         <View style={{flex: 1, flexDirection: 'row', alignItems: 'center'}}>
           {/* <CountryCode onChange={()=>{}}/> */}

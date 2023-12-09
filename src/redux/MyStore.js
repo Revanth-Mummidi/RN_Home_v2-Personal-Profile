@@ -8,6 +8,8 @@ import ProfilePicSlice from './slices/ProfilePicSlice';
 import PersonalProfileSlice from '../screens/Personal/slices/PersonalProfileSlice'
 import AddDependantUserSlice from './slices/AddDependantUserSlice';
 import MediaSlice from './slices/MediaSlice';
+import CalendarReducers from '../screens/Calender/slices/CalScreenSlices';
+import NetWorkSlice from './slices/NetWorkSlice';
 
 
 const rootreducer = combineReducers({
@@ -17,7 +19,9 @@ const rootreducer = combineReducers({
   lang:LangReducer,
   image:ProfilePicSlice,
   dependant_users:AddDependantUserSlice,
+  CalendarReducers:CalendarReducers,
   PersonalReducers:PersonalProfileSlice,
+  network:NetWorkSlice
 })
 
 

@@ -17,17 +17,277 @@ Bugs:-
 }
 import {View, Text, Pressable, StyleSheet, TextInput} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import {Colors, Color} from '../../../themes/index.js';
-import DatePicker from 'react-native-date-picker';
-import {ThemeContext} from '../../../themes/components/ThemeContext.js';
 import React, {useEffect, useState} from 'react';
-import ExpandableDateOnlyPicker from '../../_components/calenders/ExpandableDateOnlyPicker.js';
-import DateTimePicker from '../../_components/calenders/DateTimePicker.js';
-import {DateOnlyPicker} from '../../_components/index.js';
 import DateTimeScrollablePicker from './DateTimeScrollablePicker';
-import {ceil, floor, startClock} from 'react-native-reanimated';
+import {useDispatch, useSelector} from 'react-redux';
+import {
+  AddTimeToDate,
+  ConvertDateTimeToCompleteString,
+  ConvertStringToDate,
+  FormatDateAndTime,
+} from '../utils/Formats.js';
+import {setEndDate, setEndTime, setOccurance} from '../slices/SaveSlice.jsx';
 
-const EndComponent = ({
+const EndComponent = () => {
+  const Color = useSelector(state => state.theme).Colors;
+  const styles = getStyles(Color);
+  const dispatch = useDispatch();
+  const SaveObj = useSelector(state => state.CalendarReducers.savetask);
+  const isWeek = SaveObj.isWeek;
+  const selectedWeeks = SaveObj.weeks;
+  const [occurences, setOccurences] = useState(0);
+  const [repeat, setRepeat] = useState(true);
+  const [newDate, setDate] = useState(
+    new Date(ConvertStringToDate(SaveObj.start_date)),
+  );
+  const [newTime, setTime] = useState(
+    new Date(ConvertStringToDate(SaveObj.start_date)),
+  );
+  const [isOcc, setOcc] = useState(false);
+  const isExist = week => {
+    let c = 0;
+    selectedWeeks.map((data, index) => {
+      if (data == 1 && index == week) {
+        c = 1;
+      }
+    });
+    return c != 0;
+  };
+  const calculateOccurrencesbyDate = () => {
+    let occ = 0;
+    let endDateObj = new Date(AddTimeToDate(newDate, newTime));
+    let currentDate = new Date(ConvertStringToDate(SaveObj.start_date));
+    if (isWeek == 0) {
+      const startDay = currentDate.valueOf();
+      const endDay = endDateObj.valueOf();
+      const timestamp =
+        SaveObj.month * 30 * 24 * 3600 * 1000 +
+        SaveObj.day * 24 * 3600 * 1000 +
+        SaveObj.hour * 3600 * 1000;
+      occ = Math.floor((endDay - startDay) / timestamp);
+    } else {
+      while (currentDate <= endDateObj) {
+        if (isExist(currentDate.getDay())) {
+          occ++;
+        }
+        currentDate.setDate(currentDate.getDate() + 1);
+      }
+    }
+    setOccurences(occ);
+  };
+  const calculateDatebyOccurence = () => {
+    let currentDate = new Date(ConvertStringToDate(SaveObj.start_date));
+    let occ = occurences;
+    if (isWeek == 0) {
+      const timestamp =
+        SaveObj.month * 30 * 24 * 3600 * 1000 +
+        SaveObj.day * 24 * 3600 * 1000 +
+        SaveObj.hour * 3600 * 1000;
+      const startDay = currentDate.valueOf();
+      const EndDateObj = new Date(startDay + occ * timestamp);
+      currentDate = EndDateObj;
+    } else {
+      while (occ > 0) {
+        currentDate.setDate(currentDate.getDate() + 1);
+        if (isExist(currentDate.getDay())) {
+          occ--;
+        }
+      }
+    }
+    if (currentDate != newDate) {
+      setDate(currentDate);
+      setTime(currentDate);
+    }
+  };
+  const handleForDate = event => {
+    setDate(event);
+    setOcc(false);
+  };
+  const handleForTime = event => {
+    setTime(event);
+    setOcc(false);
+  };
+
+  useEffect(() => {
+    if (!isOcc) {
+      calculateOccurrencesbyDate();
+    }
+    let t1 = AddTimeToDate(newDate, newTime);
+    const {date, time} = FormatDateAndTime(t1);
+    dispatch(setEndDate(date));
+    dispatch(setEndTime(time));
+  }, [isOcc, newDate, newTime, SaveObj]);
+  useEffect(() => {
+    if (isOcc) {
+      calculateDatebyOccurence();
+    }
+    dispatch(setOccurance(occurences));
+  }, [isOcc, occurences, SaveObj]);
+  return (
+    <View
+      style={{
+        backgroundColor: Color.textfieldContainer,
+        padding: 5,
+        borderBottomLeftRadius: 13,
+        borderBottomRightRadius: 13,
+      }}>
+      <Pressable
+        onPress={() => {
+          setRepeat(!repeat);
+        }}
+        style={{
+          backgroundColor: Color.calen_card_bg,
+          padding: 5,
+          paddingTop: 15,
+          borderRadius: 10,
+        }}>
+        <Text style={{color: Color.white, paddingLeft: 5}}>End</Text>
+        <View
+          style={{
+            flex: 1,
+            marginTop: 5,
+            flexDirection: 'row',
+            backgroundColor: Color.calen_card_bg,
+          }}>
+          <View
+            style={{
+              flex: 1,
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+            }}>
+            <View
+              style={{
+                flex: 1,
+                flexDirection: 'row',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={
+                  !isOcc
+                    ? {
+                        fontSize: 14,
+                        fontWeight: '500',
+                        backgroundColor: Color.badge_bg,
+                        paddingHorizontal: 10,
+                        paddingVertical: 1,
+                        borderRadius: 5,
+                        color: Color.badge,
+                      }
+                    : {
+                        fontSize: 14,
+                        paddingHorizontal: 10,
+                        paddingVertical: 1,
+                        fontWeight: '500',
+                      }
+                }>
+                {ConvertDateTimeToCompleteString(newDate, newTime)}
+              </Text>
+              <Text
+                style={
+                  isOcc
+                    ? {
+                        fontSize: 14,
+                        fontWeight: '500',
+                        backgroundColor: Color.badge_bg,
+                        paddingHorizontal: 10,
+                        paddingVertical: 1,
+                        borderRadius: 5,
+                        color: Color.badge,
+                        marginLeft: 10,
+                      }
+                    : {
+                        fontSize: 14,
+                        paddingHorizontal: 10,
+                        paddingVertical: 1,
+                        marginLeft: 10,
+                        fontWeight: '500',
+                      }
+                }>
+                {occurences < 0 ? `Invalid Date` : `Occurence: ${occurences}`}
+              </Text>
+            </View>
+            {isWeek != -1 ? (
+              <Pressable>
+                <View style={{flex: 1, alignItems: 'center'}}>
+                  <MaterialIcons
+                    name={repeat ? 'arrow-drop-up' : 'arrow-drop-down'}
+                    size={25}
+                  />
+                </View>
+              </Pressable>
+            ) : null}
+          </View>
+        </View>
+        <View style={{}}>
+          {repeat && isWeek != -1 ? (
+            <>
+              <View>
+                <DateTimeScrollablePicker
+                activeColor={Color.badge_bg}
+                  handleForDate={handleForDate}
+                  handleForTime={handleForTime}
+                  newDate={newDate}
+                  txtColor="white"
+                  open={repeat && isWeek != -1}
+                  newTime={newTime}
+                  bgColor={'transparent'}
+                />
+              </View>
+              <Pressable
+                onPress={() => {
+                  setOcc(true);
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    borderRadius: 13,
+                    padding: 10,
+                    marginTop: 10,
+                    backgroundColor: '#171717',
+                  }}>
+                  <Text style={{color: Color.white}}>
+                    by number of occurrence
+                  </Text>
+
+                  <View style={{justifyContent: 'center', paddingVertical: 3}}>
+                    <TextInput
+                      style={{padding: 0}}
+                      inputMode="numeric"
+                      value={
+                        occurences == 0
+                          ? ''
+                          : occurences < 0
+                          ? 'Invalid date'
+                          : occurences.toString()
+                      }
+                      onChangeText={text => {
+                        setOccurences(text == '' ? 0 : parseInt(text));
+                        setOcc(true);
+                      }}
+                    />
+                  </View>
+                </View>
+              </Pressable>
+            </>
+          ) : null}
+        </View>
+      </Pressable>
+    </View>
+  );
+};
+
+const getStyles = Color => {
+  const styles = StyleSheet.create({
+    container: {
+      backgroundColor: Color.textfieldContainer,
+    },
+  });
+  return styles;
+};
+
+export default EndComponent;
+
+const OldEndComponent = ({
   savedData,
   setSavedData,
   start_date,
@@ -37,8 +297,7 @@ const EndComponent = ({
   repeatInd,
   repeatVal,
 }) => {
-  const {theme, toggleTheme} = React.useContext(ThemeContext);
-  const Color = Colors(theme);
+  const Color = useSelector(state => state.theme).Colors;
   const styles = getStyles(Color);
   const [occurences, setOccurences] = useState(1);
   const [repeat, setRepeat] = useState(true);
@@ -49,7 +308,7 @@ const EndComponent = ({
   const [isOcc, setOcc] = useState(false);
 
   useEffect(() => {
-    setOpen(!isOcc)
+    setOpen(!isOcc);
     if (!isOcc) {
       const occ = calculateOccurrences(
         start_date,
@@ -191,7 +450,6 @@ const EndComponent = ({
           while (currentDate <= endDateObj) {
             // Check if the current date is a Sunday (day of the week 0)
             if (currentDate.getDay() === repeatValue - 1) {
-              
               occ++;
             }
             currentDate.setDate(currentDate.getDate() + 1);
@@ -213,7 +471,7 @@ const EndComponent = ({
           occ = Math.floor(
             (endDay - startDay) / (86400 * 1000 * 30 * (repeatVal + 1)),
           );
-          console.log(occ);
+
           return occ;
         }
         break;
@@ -275,16 +533,12 @@ const EndComponent = ({
             currentDate = EndDate;
           } else {
             let occ = occurance;
-            // currentDate.setDate(currentDate.getDate()+1);
 
             while (occ > 0) {
               currentDate.setDate(currentDate.getDate() + 1);
               if (isExist(currentDate.getDay())) {
                 occ--;
-
-                // console.log('Exist a week')
               }
-              //  console.log(currentDate);
             }
             setTime(currentDate);
           }
@@ -377,7 +631,7 @@ const EndComponent = ({
         // backgroundColor:'#BBBBBB',
         padding: 5,
         paddingVertical: 10,
-       paddingTop:15,
+        paddingTop: 15,
         // borderWidth:1,
         // borderColor:'grey',
         // borderRadius:10,
@@ -390,7 +644,7 @@ const EndComponent = ({
           flexDirection: 'row',
           borderRadius: 13,
           padding: 10,
-          backgroundColor: '#171717',
+          backgroundColor: Color.calend_newtask_endComponent_bgColor,
           // ...styles.container,
         }}>
         <View
@@ -418,7 +672,7 @@ const EndComponent = ({
                     ? 'Invalid Repeat Category'
                     : occurences !== 'Invalid date format'
                     ? ` Occurence : ${occurences}`
-                    : occurences
+                    : 'Wrong Input'
                   : `Date and Time : ${newDate.getDate()} ${toMonth(
                       newDate.getMonth(),
                     )} ${newDate.getFullYear()} , ${formattedTime} `
@@ -441,141 +695,132 @@ const EndComponent = ({
         </View>
       </View>
       <View style={{}}>
-      {repeat && repeatInd != 4 ? (
-        <>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: 'row',
-              justifyContent: 'space-around',
-              marginTop: 10,
-            }}>
+        {repeat && repeatInd != 4 ? (
+          <>
             <View
               style={{
-                flex: 3,
-                flexDirection: 'column',
-                borderRadius: 13,
-                padding: 10,
-                opacity: isOcc ? 0.7 : 1,
-                // borderColor: isOcc ? 'transparent' : 'white',
-                // borderWidth: 1,
-                marginRight: 10,
-                backgroundColor: '#171717',
-                // ...styles.container,
-              }}>
-              <Pressable
-                onPress={() => {
-                  setOcc(false);
-                }}>
-                <Text style={{color: Color.white}}>Custom Date Time</Text>
-                <View
-                  style={{flex: 1, flexDirection: 'row', paddingVertical: 3}}>
-                  <View style={{flex: 1, justifyContent: 'center'}}>
-                    <Pressable
-                      onPress={() => {
-                        setOpen(true);
-                      }}>
-                      <Text>
-                        {newDate.getDate()} {toMonth(newDate.getMonth())}{' '}
-                        {newDate.getFullYear()} , {formattedTime}
-                      </Text>
-                    </Pressable>
-                  </View>
-
-                  <Pressable
-                    onPress={() => {
-                      setOpen(!open);
-                    }}>
-                    <View
-                      style={{
-                        justifyContent: 'flex-end',
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}>
-                      <MaterialIcons
-                        name={open ? 'arrow-drop-up' : 'arrow-drop-down'}
-                        size={25}
-                      />
-                    </View>
-                  </Pressable>
-                </View>
-              </Pressable>
-            </View>
-
-            <Pressable
-              onPress={() => {
-                setOcc(true);
+                flex: 1,
+                flexDirection: 'row',
+                justifyContent: 'space-around',
+                marginTop: 10,
               }}>
               <View
                 style={{
-                  flex: 1,
+                  flex: 3,
+                  flexDirection: 'column',
                   borderRadius: 13,
                   padding: 10,
-                  opacity: isOcc ? 1 : 0.7,
-                  // borderColor: isOcc ? 'white' : 'transparent',
+                  opacity: isOcc ? 0.7 : 1,
+                  // borderColor: isOcc ? 'transparent' : 'white',
                   // borderWidth: 1,
-                  backgroundColor: '#171717',
+                  marginRight: 10,
+                  backgroundColor: Color.calend_newtask_endComponent_bgColor,
                   // ...styles.container,
                 }}>
-                <Text style={{color: Color.white}}>Occurence</Text>
+                <Pressable
+                  onPress={() => {
+                    setOcc(false);
+                  }}>
+                  <Text style={{color: Color.white}}>Custom Date Time</Text>
+                  <View
+                    style={{flex: 1, flexDirection: 'row', paddingVertical: 3}}>
+                    <View style={{flex: 1, justifyContent: 'center'}}>
+                      <Pressable
+                        onPress={() => {
+                          setOpen(true);
+                        }}>
+                        <Text>
+                          {newDate.getDate()} {toMonth(newDate.getMonth())}{' '}
+                          {newDate.getFullYear()} , {formattedTime}
+                        </Text>
+                      </Pressable>
+                    </View>
 
-                <View style={{justifyContent: 'center', paddingVertical: 3}}>
-                  <TextInput
-                    style={{padding: 0}}
-                    inputMode="numeric"
-                    value={
-                      occurences == 0
-                        ? null
-                        : occurences === 'Invalid date format'
-                        ? null
-                        : occurences.toString()
-                    }
-                    onChangeText={text => {
-                      setEndDate(
-                        calculateDatebyOccurence(
-                          start_date,
-                          convertToType(repeatInd),
-                          repeatVal + 1,
-                          start_time,
-                          text == '' ? 0 : parseInt(text),
-                        ),
-                      );
-                      setOccurences(text == '' ? 0 : parseInt(text));
-                      setOcc(true);
-                    }}
-                    // placeholder="Enter number of occurences"
-                  />
-                </View>
+                    <Pressable
+                      onPress={() => {
+                        setOpen(!open);
+                      }}>
+                      <View
+                        style={{
+                          justifyContent: 'flex-end',
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}>
+                        <MaterialIcons
+                          name={open ? 'arrow-drop-up' : 'arrow-drop-down'}
+                          size={25}
+                        />
+                      </View>
+                    </Pressable>
+                  </View>
+                </Pressable>
               </View>
-            </Pressable>
-          </View>
-          {open ? (
-            <View style={{opacity: isOcc ? 0.7 : 1}}>
-              <DateTimeScrollablePicker
-                handleForDate={handleForDate}
-                handleForTime={handleForTime}
-                newDate={newDate}
-                open={open}
-                newTime={newTime}
-                bgColor={'#171717'}
-              />
+
+              <Pressable
+                onPress={() => {
+                  setOcc(true);
+                }}>
+                <View
+                  style={{
+                    flex: 1,
+                    borderRadius: 13,
+                    padding: 10,
+                    opacity: isOcc ? 1 : 0.7,
+                    // borderColor: isOcc ? 'white' : 'transparent',
+                    // borderWidth: 1,
+                    backgroundColor: Color.calend_newtask_endComponent_bgColor,
+                    // ...styles.container,
+                  }}>
+                  <Text style={{color: Color.white}}>Occurence</Text>
+
+                  <View style={{justifyContent: 'center', paddingVertical: 3}}>
+                    <TextInput
+                      style={{padding: 0}}
+                      inputMode="numeric"
+                      value={
+                        occurences == 0
+                          ? null
+                          : occurences === 'Invalid date format'
+                          ? null
+                          : occurences.toString()
+                      }
+                      onChangeText={text => {
+                        setEndDate(
+                          calculateDatebyOccurence(
+                            start_date,
+                            convertToType(repeatInd),
+                            repeatVal + 1,
+                            start_time,
+                            text == '' ? 0 : parseInt(text),
+                          ),
+                        );
+                        setOccurences(text == '' ? 0 : parseInt(text));
+                        setOcc(true);
+                      }}
+                      // placeholder="Enter number of occurences"
+                    />
+                  </View>
+                </View>
+              </Pressable>
             </View>
-          ) : null}
-        </>
-      ) : null}
+            {open ? (
+              <View style={{opacity: isOcc ? 0.7 : 1}}>
+                <DateTimeScrollablePicker
+                 activeColor={Color.badge_bg}
+                  handleForDate={handleForDate}
+                  handleForTime={handleForTime}
+                  newDate={newDate}
+                  open={open}
+                  txtColor={Color.calend_txt_color2}
+                  newTime={newTime}
+                  bgColor={Color.calend_newtask_endComponent_bgColor}
+                />
+              </View>
+            ) : null}
+          </>
+        ) : null}
       </View>
     </View>
   );
 };
-
-const getStyles = Color => {
-  const styles = StyleSheet.create({
-    container: {
-      backgroundColor: Color.textfieldContainer,
-    },
-  });
-  return styles;
-};
-
-export default EndComponent;
