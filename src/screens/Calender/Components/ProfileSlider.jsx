@@ -8,8 +8,16 @@ import {
 } from 'react-native';
 import React, {useEffect, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
-import {setEhUserId} from '../slices/SaveSlice';
+import {setEhUserId, setGroupEhUserId} from '../slices/SaveSlice';
 import {getMembers} from '../../Personal/utils/PersonalServerRequests';
+import {
+  responsiveFontSize,
+  responsiveHeight,
+} from '../../../themes/ResponsiveDimensions';
+import getRandomLGColor from '../../_components/uiStyles/GetRandomLGColors';
+import LinearGradient from 'react-native-linear-gradient';
+import { setGroupDependantUsers } from '../slices/Calendar_Dependent_Users';
+
 export default function ProfileSliderList({
   image,
   showBadge,
@@ -17,10 +25,12 @@ export default function ProfileSliderList({
   user,
   ActiveColor = 'transparent',
   InActiveOpacity = 1,
+  isSave=false,
   onPressUser,
 }) {
   const DependentUsers = useSelector(
-    state => state.dependant_users).dependant_users_data;
+    state => state.dependant_users,
+  ).dependant_users_data;
   const Color = useSelector(state => state.theme).Colors;
   const dispatch = useDispatch();
   const styles = getStyles(Color);
@@ -49,18 +59,26 @@ export default function ProfileSliderList({
   }, []);
   useEffect(() => {
     // dispatch(setEhUserId(selectedUser));
-    let arr=selectedUser,arr1=[];
-    arr.map((data,index)=>{
-      if(data)
-      {
-         arr1.push(DependentUsers[index].eh_user_id);
+    let arr = selectedUser,
+      arr1 = [];
+    arr.map((data, index) => {
+      if (data) {
+        arr1.push(DependentUsers[index].eh_user_id);
       }
-    })
-    console.log("SELECTED PROFILES=",arr1);
+    });
+    if(isSave)
+    {
+      console.log('SAVE SELECTED PROFILES=', arr1);
+      dispatch(setGroupEhUserId(arr1));
+    }
+    {
+      console.log('SAVE SELECTED PROFILES=', arr1);
+    }
     // dispatch(setEhUserId(arr1));
-    
+     dispatch(setGroupDependantUsers(selectedUser));
     // console.log("HELLO");
   }, [selectedUser]);
+  const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   return (
     <ScrollView
       horizontal={true}
@@ -100,14 +118,43 @@ export default function ProfileSliderList({
                       borderRadius: 40,
                     }}
                   /> */}
-                <View
+                {item != null ? (
+                  item.Profile_Picture != null ? (
+                    <Image
+                      source={{uri: item.Profile_Picture}}
+                      style={{
+                        opacity: selectedUser[index] ? 1 : InActiveOpacity,
+                        height: selectedUser[index] ? 40 : 30,
+                        width: selectedUser[index] ? 40 : 30,
+                        borderRadius: 40,
+                        backgroundColor: Color.badge_bg,
+                      }}
+                    />
+                  ) : (
+                    <LinearGradient
+                      colors={[RandomLinearColor1, RandomLinearColor2]}
+                      style={{
+                        height:selectedUser[index] ? 40:30,
+                        width:selectedUser[index] ? 40:30,
+                        borderRadius: 40,
+                        backgroundColor: 'grey',
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      }}>
+                      <Text style={{fontSize: responsiveFontSize(1.5)}}>
+                        {item.user_first_name[0]}
+                      </Text>
+                    </LinearGradient>
+                  )
+                ) : null}
+                {/* <View
                   style={{
                     opacity: selectedUser[index] ? 1 : InActiveOpacity,
                     height: selectedUser[index] ? 40 : 30,
                     width: selectedUser[index] ? 40 : 30,
                     borderRadius: 40,
                     backgroundColor:Color.badge_bg,
-                  }}></View>
+                  }}></View> */}
               </View>
 
               <Text

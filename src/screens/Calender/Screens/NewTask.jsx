@@ -50,7 +50,7 @@ import {
 } from '../utils/Formats.js';
 import { getColor } from '../../../themes/GetColor.js';
 import { setCurrentDate } from '../slices/CalendarStates.jsx';
-import { EditEvent, EditEventOccurances } from '../utils/CalendarServerRequests.js';
+import { EditEvent, EditEventOccurances, SaveCalendarEvent } from '../utils/CalendarServerRequests.js';
 const saveData = {
   event_name: 'Medicines',
   start_date: '10/10/2023 10:50:21',
@@ -97,13 +97,16 @@ const NewTask = ({refCreateTask}) => {
   // console.log("Colors=",Color);
   const styles = getStyles(Color);
   const SaveObj = useSelector(state => state.CalendarReducers.savetask);
+  console.log("Selected ",SaveObj.group_eh_user_id)
   const EditObject = useSelector(state => state.CalendarReducers.view_card_states);
   const [repeat, setRepeat] = useState(false);
   const dispatch=useDispatch();
+  const CurrentProfile=useSelector(state=>state.CalendarReducers.calend_dependent_users).selected_main_dependant_users;
+   console.log("CURRENT PROFILE=",CurrentProfile.user_first_name);
   const isWeek = SaveObj.isWeek;
   useEffect(()=>{
     if(EditObject.isEdit){
-      console.log(EditObject.EditObj.event_name,"EDIT OBJECT");
+      // console.log(EditObject.EditObj.event_name,"EDIT OBJECT");
       dispatch(setEventName(EditObject.EditObj.event_name));
       dispatch(setDetails(EditObject.EditObj.details));
     }
@@ -113,9 +116,8 @@ const NewTask = ({refCreateTask}) => {
       refCreateTask.current.close();
    
     dispatch(setCurrentDate(new Date()));
-    const apiURL = Base_URLs.Save_Event_URL;
-    const authToken =
-      'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
+    // const apiURL = Base_URLs.Save_Event_URL;
+    const authToken =CurrentProfile.access_token;
     const payload = {
       tag: ['EH1'],
       note: [
@@ -124,6 +126,7 @@ const NewTask = ({refCreateTask}) => {
           note_status: 'testing saveEvents',
         },
       ],
+      eh_user_ids:SaveObj.group_eh_user_id
     };
    const queryParams={
     event_name:SaveObj.event_name,
@@ -138,21 +141,16 @@ const NewTask = ({refCreateTask}) => {
     occurance:SaveObj.occurance,
     duration:SaveObj.duration,
     status:'confirmed',
-    eh_user_id:'0910000000046',
-    Authorization:'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ',
+    eh_user_id:CurrentProfile.eh_user_id,
     colour_code:SaveObj.colour_code,  
    }
    console.log("SAVED EVENT=",queryParams);
-    const fullUrl = `${apiURL}?${new URLSearchParams(queryParams).toString()}`;
+  
    
     try {
-      const response = await axios.post(fullUrl, payload, {
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
-     
-      // console.log(response);
+      const res=await SaveCalendarEvent(authToken,queryParams,payload);
+      console.log("Successfully Saved");
+      console.log(res);
     } catch (err) {
       console.log(err);
     }
@@ -215,7 +213,7 @@ function TaskFor() {
         }}>
         Task For
       </Text>
-      <ProfileSlider ActiveColor="#99FEFF" InActiveOpacity={0.5} />
+      <ProfileSlider ActiveColor="#99FEFF" InActiveOpacity={0.5} isSave={true} />
     </View>
   );
 }
@@ -252,7 +250,8 @@ function RemindDateAndDuration() {
   const styles = getStyles(Color);
   const [duration, setDur] = useState({time: '15', unit: 'M'});
   const [selectedInd, setSelectedInd] = useState(2);
-
+  const CurrentProfile=useSelector(state=>state.CalendarReducers.calend_dependent_users).selected_main_dependant_users;
+  // console.log("MAIN PROFILE=",CurrentProfile);
   const DurData = [
     {time: '5', unit: 'M'},
     {time: '10', unit: 'M'},
@@ -680,6 +679,7 @@ function RepeatSection({repeat, setRepeat}) {
   );
 }
 function SaveButton({handleSave}) {
+  
   const SaveObj=useSelector(state=>state.CalendarReducers.savetask);
   const Color = useSelector(state => state.theme).Colors;
   return (

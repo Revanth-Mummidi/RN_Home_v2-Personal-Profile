@@ -23,6 +23,7 @@ import NewRepeatModal, { ScrollableComponent } from '../Components/NewRepeatModa
 import { getColor } from '../../../themes/GetColor';
 import MultiScrollPicker from '../Components/MultiScrollPicker';
 import { DeleteCompleteEvent, DeleteSingleEvent, DeleteSingleOccurance } from '../utils/CalendarServerRequests';
+import { getApiKey } from '../../../utils/LocalStorage';
 const HEIGHT = Dimensions.get('screen').height;
 const item = {
   date: '1 Jan',
@@ -567,7 +568,8 @@ function DeleteReminder({refViewTask}) {
   }
   const handleDelete=async()=>{
     try{
-       const authToken='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
+      //  const authToken='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzAxNDk2MTgxLCJqdGkiOiIzNGU0N2I0ZS01ZGQwLTRkMjktYjIxMS1hYmQyMDZmYjQ4NTQiLCJ0eXBlIjoiYWNjZXNzIiwic3ViIjoiMDkxMDAwMDAwMDA0NiIsIm5iZiI6MTcwMTQ5NjE4MX0.GkB7RokJpLvFikmOoSmn1zBwn3j_HADTWSVN2C10QQQ';
+      const authToken=await getApiKey();
        const queryParams={
         event_occurance_id:ItemObj.event_occurance_id
        }

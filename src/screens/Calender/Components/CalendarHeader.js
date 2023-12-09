@@ -8,7 +8,7 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
-import React, {useState, useEffect, useRef} from 'react';
+import React, {useState, useEffect, useRef, useDebugValue} from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import IconFontAwesome from 'react-native-vector-icons/FontAwesome';
 import {useDispatch, useSelector} from 'react-redux';
@@ -24,7 +24,9 @@ import {
   setSearchText,
 } from '../slices/CalendarStates';
 import {ConvertDateTimeToCompleteString} from '../utils/Formats';
-import { responsiveFontSize, responsiveWidth } from '../../../themes/ResponsiveDimensions';
+import { responsiveFontSize, responsiveHeight, responsiveWidth } from '../../../themes/ResponsiveDimensions';
+import { setSelectedDependantUser } from '../slices/Calendar_Dependent_Users';
+import getRandomLGColor from '../../_components/uiStyles/GetRandomLGColors';
 
 const BAR_HEIGHT = Platform.OS === 'ios' ? 35 : StatusBar.currentHeight;
 
@@ -49,13 +51,18 @@ export default function AppHeader({
   const currentdate = new Date(
     useSelector(state => state.CalendarReducers.cal_states).CurrentDate,
   );
+  const {RandomLinearColor1,RandomLinearColor2}=getRandomLGColor();
   const DependentUsers = useSelector(
     state => state.dependant_users).dependant_users_data;
   const profileSlider = useSelector(
     state => state.CalendarReducers.cal_states,
   ).ProfileSliderView;
   const list = isProfessional ? professional : profile;
-  const [current, setCurrent] = useState(list[user]);
+  const [selectedItem,setSelectedItem]=useState(DependentUsers[0]);
+  // const [current, setCurrent] = useState(DependentUsers[0]);
+  useEffect(()=>{
+   dispatch(setSelectedDependantUser(selectedItem));
+  },[selectedItem]);
   const IsSearch = useSelector(
     state => state.CalendarReducers.cal_states,
   ).IsSearch;
@@ -87,19 +94,23 @@ export default function AppHeader({
         style={styles.linearGradient}>
         <View style={styles.container}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
-            <Pressable activeOpacity={1} style={{}} onPress={onPressImage}>
-              <Image
-                source={{uri: current?.userImage}}
-                style={styles.userImage}
-              />
-            </Pressable>
+          <Pressable activeOpacity={1} style={{}} onPress={onPressImage}>
+                {selectedItem!=null && selectedItem.Profile_Picture!=null?(<Image
+                  source={{uri: selectedItem.Profile_Picture}}
+                  style={styles.userImage}
+                />):selectedItem!=null?(
+                  <LinearGradient
+                  colors={[RandomLinearColor1, RandomLinearColor2]} style={{backgroundColor:'grey',...styles.userImage,justifyContent:'center',alignItems:'center'}}>
+                  <Text style={{fontSize:responsiveFontSize(2)}}>{selectedItem.user_first_name[0]}</Text>
+                </LinearGradient>):null}
+              </Pressable>
             <Pressable
               onPress={() => {
                 dispatch(setProfileSliderView(!profileSlider));
               }}
               style={{flexDirection: 'row'}}>
               <Text style={styles.title}>
-                {title} {current?.name} {suffix}
+                {title} {selectedItem?.user_first_name} {suffix}
               </Text>
 
               <View style={{marginLeft: 5, justifyContent: 'flex-end'}}>
@@ -197,56 +208,52 @@ export default function AppHeader({
                             width: isProfessional ? 85 : 55,
                             marginRight: 5,
                           }}>
-                          <Pressable
-                            style={{alignItems: 'center'}}
-                            onPress={() => {
-                              onPressIcon(index);
-                              // setCurrent(profile);
+                             <Pressable
+                        style={{alignItems: 'center'}}
+                        onPress={() => {
+                          onPressIcon(index);
+                          // setCurrent(profile);
+                          setSelectedItem(profile);
+                          dispatch(setProfileSliderView(!profileSlider));
+                        }}>
+                        
+                        {profile!=null?profile.Profile_Picture!=null?(<Image
+                          source={{uri: profile.Profile_Picture}}
+                          style={{
+                            height: responsiveHeight(3),
+                            width: responsiveHeight(3),
+                            borderRadius: 40,
+                          }}
+                        />):(
+                          <LinearGradient
+                          colors={[RandomLinearColor1, RandomLinearColor2]} style={{height:responsiveHeight(3),width:responsiveHeight(3),borderRadius:40,backgroundColor:'grey',justifyContent:'center',alignItems:'center'}}>
+                         <Text style={{fontSize:responsiveFontSize(1.5)}}>{profile.user_first_name[0]}</Text>
+                        </LinearGradient>):null}
+                        <Text
+                          numberOfLines={1}
+                          style={{fontSize: responsiveFontSize(1.2), color: Color.headersubtitles,marginVertical:3}}>
+                          {/* {profile.name} */}
+                          {profile.user_first_name}
+                        </Text>
+                        {/* {profile?.showBadge ? (
+                          <Text
+                            style={{
+                              position: 'absolute',
+                              top: 10,
+                              right: 2,
+                              fontSize: 11,
+                              fontWeight: '600',
+                              color: Color.badge,
+                              backgroundColor: Color.badge_bg,
+                              borderRadius: 50,
+                              paddingVertical: 2,
+                              paddingHorizontal: 5,
                             }}>
-                            {/* <Image
-                              source={{uri: profile.userImage}}
-                              style={{
-                                height: 30,
-                                width: 30,
-                                borderRadius: 40,
-                              }}
-                            /> */}
-                             <View style={{
-                                height: 30,
-                                width: 30,
-                                borderRadius: 40,
-                                backgroundColor:'grey'
-                              }}>
-
-                             </View>
-                            <Text
-                              numberOfLines={1}
-                              ellipsizeMode='tail'
-                              style={{
-                                fontSize: 11,
-                                color: Color.headersubtitles,
-                              }}>
-                              {/* {profile.name} */}
-                              {profile.user_first_name}
-                            </Text>
-                            {/* {profile?.showBadge ? (
-                              <Text
-                                style={{
-                                  position: 'absolute',
-                                  top: 10,
-                                  right: 2,
-                                  fontSize: 11,
-                                  fontWeight: '600',
-                                  color: Color.badge,
-                                  backgroundColor: Color.badge_bg,
-                                  borderRadius: 50,
-                                  paddingVertical: 2,
-                                  paddingHorizontal: 5,
-                                }}>
-                                {profile?.badge}
-                              </Text>
-                            ) : null} */}
-                          </Pressable>
+                            {profile?.badge}
+                          </Text>
+                        ) : null}
+                       */}
+                      </Pressable>
                         </View>
                       </View>
                     );

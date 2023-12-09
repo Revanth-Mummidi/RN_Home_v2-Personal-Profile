@@ -143,6 +143,27 @@ export const fetchEventsPerUser=async(authToken,queryParams)=>{
    }
 } 
 
+export const SaveCalendarEvent=async(authToken,queryParams,body)=>{
+  try{
+    const ApiUrl=Base_URLs.Save_Event_URL;
+    const fullUrl = `${ApiUrl}?${new URLSearchParams(queryParams).toString()}`;
+    return await HomeAPI({
+       method: 'POST',
+       url: fullUrl,
+       data: body,
+       headers: {
+         Authorization: `Bearer ${authToken}`,
+       },
+     }).then(res => {
+       console.log("SAVED SUCCESSFULLY",res);
+       return res;
+     });
+  }
+  catch(err){
+    console.log("ERROR WHILE SAVING EVENT",err);
+    throw err;
+  }
+}
 export const calendarSaveEvent = async (
   calendarSaveEventData,
   authorization,

@@ -5,6 +5,7 @@ const initialstate={
   duration: '15',
   end_date: '',
   eh_user_id:[],
+  group_eh_user_id:[],
   end_time: '',
   event_name: '',
   occurance: '',
@@ -70,6 +71,9 @@ const SaveSlice = createSlice({
     setIsWeek(state,action){
       state.isWeek=action.payload;
     },
+    setGroupEhUserId(state,action){
+      state.group_eh_user_id=action.payload;
+    },
     resetSaveTask(state) {
       state=initialstate;
     },
@@ -93,6 +97,7 @@ export const {
   setMonth,
   setWeeks,
   setIsWeek,
+  setGroupEhUserId,
   resetSaveTask
 } = SaveSlice.actions;
 
